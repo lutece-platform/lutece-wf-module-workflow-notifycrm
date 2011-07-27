@@ -44,6 +44,7 @@ public class TaskNotifyCRMConfig
     private int _nIdTask;
     private int _nIdDirectory;
     private int _nPositionEntryDirectoryIdDemand;
+    private int _nPositionEntryDirectoryUserGuid;
     private String _strSubject;
     private String _strMessage;
     private String _strSenderName;
@@ -101,6 +102,24 @@ public class TaskNotifyCRMConfig
     public void setPositionEntryDirectoryIdDemand( int nPositionEntryDirectoryIdDemand )
     {
         _nPositionEntryDirectoryIdDemand = nPositionEntryDirectoryIdDemand;
+    }
+
+    /**
+     * Get the position of the entry directory associated to the user guid
+     * @return position Entry directory user guid
+     */
+    public int getPositionEntryDirectoryUserGuid(  )
+    {
+        return _nPositionEntryDirectoryUserGuid;
+    }
+
+    /**
+     * Set position Entry directory user guid
+     * @param nPositionEntryDirectoryUserGuid position of Entry directory user guid
+     */
+    public void setPositionEntryDirectoryUserGuid( int nPositionEntryDirectoryUserGuid )
+    {
+        _nPositionEntryDirectoryUserGuid = nPositionEntryDirectoryUserGuid;
     }
 
     /**

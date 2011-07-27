@@ -47,14 +47,14 @@ import java.util.List;
  */
 public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
 {
-    private static final String SQL_QUERY_FIND_BY_PRIMARY_KEY = " SELECT id_task, id_directory, position_directory_entry_id_demand, sender_name, subject, message, status_text " +
+    private static final String SQL_QUERY_FIND_BY_PRIMARY_KEY = " SELECT id_task, id_directory, position_directory_entry_id_demand, position_directory_entry_user_guid, sender_name, subject, message, status_text " +
         " FROM task_notify_crm_cf  WHERE id_task = ? ";
-    private static final String SQL_QUERY_INSERT = " INSERT INTO task_notify_crm_cf( id_task, id_directory, position_directory_entry_id_demand, sender_name, subject, message, status_text )" +
-        " VALUES ( ?,?,?,?,?,?,? ) ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE task_notify_crm_cf SET id_directory = ?, position_directory_entry_id_demand = ?, sender_name = ?, subject = ?, message = ?, status_text = ? " +
+    private static final String SQL_QUERY_INSERT = " INSERT INTO task_notify_crm_cf( id_task, id_directory, position_directory_entry_id_demand, position_directory_entry_user_guid, sender_name, subject, message, status_text )" +
+        " VALUES ( ?,?,?,?,?,?,?,? ) ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE task_notify_crm_cf SET id_directory = ?, position_directory_entry_id_demand = ?, position_directory_entry_user_guid = ?, sender_name = ?, subject = ?, message = ?, status_text = ? " +
         " WHERE id_task = ? ";
     private static final String SQL_QUERY_DELETE = " DELETE FROM task_notify_crm_cf WHERE id_task = ? ";
-    private static final String SQL_QUERY_FIND_ALL = " SELECT id_task, id_directory, position_directory_entry_id_demand, sender_name, subject, message, status_text " +
+    private static final String SQL_QUERY_FIND_ALL = " SELECT id_task, id_directory, position_directory_entry_id_demand, position_directory_entry_user_guid, sender_name, subject, message, status_text " +
         " FROM task_notify_crm_cf ";
 
     /**
@@ -69,6 +69,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
         daoUtil.setInt( nIndex++, config.getIdTask(  ) );
         daoUtil.setInt( nIndex++, config.getIdDirectory(  ) );
         daoUtil.setInt( nIndex++, config.getPositionEntryDirectoryIdDemand(  ) );
+        daoUtil.setInt( nIndex++, config.getPositionEntryDirectoryUserGuid(  ) );
         daoUtil.setString( nIndex++, config.getSenderName(  ) );
         daoUtil.setString( nIndex++, config.getSubject(  ) );
         daoUtil.setString( nIndex++, config.getMessage(  ) );
@@ -89,6 +90,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
 
         daoUtil.setInt( nIndex++, config.getIdDirectory(  ) );
         daoUtil.setInt( nIndex++, config.getPositionEntryDirectoryIdDemand(  ) );
+        daoUtil.setInt( nIndex++, config.getPositionEntryDirectoryUserGuid(  ) );
         daoUtil.setString( nIndex++, config.getSenderName(  ) );
         daoUtil.setString( nIndex++, config.getSubject(  ) );
         daoUtil.setString( nIndex++, config.getMessage(  ) );
@@ -119,6 +121,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
             config.setIdTask( daoUtil.getInt( nIndex++ ) );
             config.setIdDirectory( daoUtil.getInt( nIndex++ ) );
             config.setPositionEntryDirectoryIdDemand( daoUtil.getInt( nIndex++ ) );
+            config.setPositionEntryDirectoryUserGuid( daoUtil.getInt( nIndex++ ) );
             config.setSenderName( daoUtil.getString( nIndex++ ) );
             config.setSubject( daoUtil.getString( nIndex++ ) );
             config.setMessage( daoUtil.getString( nIndex++ ) );
@@ -160,6 +163,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
             config.setIdTask( daoUtil.getInt( nIndex++ ) );
             config.setIdDirectory( daoUtil.getInt( nIndex++ ) );
             config.setPositionEntryDirectoryIdDemand( daoUtil.getInt( nIndex++ ) );
+            config.setPositionEntryDirectoryUserGuid( daoUtil.getInt( nIndex++ ) );
             config.setSenderName( daoUtil.getString( nIndex++ ) );
             config.setSubject( daoUtil.getString( nIndex++ ) );
             config.setMessage( daoUtil.getString( nIndex++ ) );

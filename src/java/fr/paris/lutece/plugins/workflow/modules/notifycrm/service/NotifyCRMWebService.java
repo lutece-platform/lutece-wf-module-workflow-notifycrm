@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.workflow.modules.notifycrm.service;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.signrequest.NotifyCRMRequestAuthenticator;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.httpaccess.HttpAccess;
@@ -84,31 +85,42 @@ public final class NotifyCRMWebService
      */
     public void notify( String strIdDemand, String strObject, String strMessage, String strSender )
     {
-        String strUrl = AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_WEBSERVICE_CRM_NOTIFICATION_REST_URL ) +
-            NotifyCRMConstants.URL_REST_NOTIFY;
+        String strCRMNotificationRestWebappUrl = AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_WEBSERVICE_REST_CRM_NOTIFICATION_WEBAPP_URL );
 
-        // List parameters to post
-        Map<String, String> params = new HashMap<String, String>(  );
-        params.put( NotifyCRMConstants.PARAMETER_ID_DEMAND, strIdDemand );
-        params.put( NotifyCRMConstants.PARAMETER_NOTIFICATION_OBJECT, strObject );
-        params.put( NotifyCRMConstants.PARAMETER_NOTIFICATION_MESSAGE, strMessage );
-        params.put( NotifyCRMConstants.PARAMETER_NOTIFICATION_SENDER, strSender );
-
-        // List elements to include to the signature
-        List<String> listElements = new ArrayList<String>(  );
-        listElements.add( strIdDemand );
-        listElements.add( strObject );
-        listElements.add( strSender );
-
-        try
+        if ( StringUtils.isNotBlank( strCRMNotificationRestWebappUrl ) )
         {
-            HttpAccess httpAccess = new HttpAccess(  );
-            httpAccess.doPost( strUrl, params, NotifyCRMRequestAuthenticator.getRequestAuthenticator(  ), listElements );
+            String strUrl = strCRMNotificationRestWebappUrl + NotifyCRMConstants.URL_REST_NOTIFY;
+
+            // List parameters to post
+            Map<String, String> params = new HashMap<String, String>(  );
+            params.put( NotifyCRMConstants.PARAMETER_ID_DEMAND, strIdDemand );
+            params.put( NotifyCRMConstants.PARAMETER_NOTIFICATION_OBJECT, strObject );
+            params.put( NotifyCRMConstants.PARAMETER_NOTIFICATION_MESSAGE, strMessage );
+            params.put( NotifyCRMConstants.PARAMETER_NOTIFICATION_SENDER, strSender );
+
+            // List elements to include to the signature
+            List<String> listElements = new ArrayList<String>(  );
+            listElements.add( strIdDemand );
+            listElements.add( strObject );
+            listElements.add( strSender );
+
+            try
+            {
+                HttpAccess httpAccess = new HttpAccess(  );
+                httpAccess.doPost( strUrl, params, NotifyCRMRequestAuthenticator.getRequestAuthenticator(  ),
+                    listElements );
+            }
+            catch ( HttpAccessException e )
+            {
+                String strError = "NotifyCRMWebServices - Error connecting to '" + strUrl + "' : ";
+                AppLogService.error( strError + e.getMessage(  ), e );
+                throw new AppException( e.getMessage(  ), e );
+            }
         }
-        catch ( HttpAccessException e )
+        else
         {
-            String strError = "NotifyCRMWebServices - Error connecting to '" + strUrl + "' : ";
-            AppLogService.error( strError + e.getMessage(  ), e );
+            throw new AppException( 
+                "NotifyCRMWebService - Could not notify the demand : The property file 'workflow-notifycrm.properties' is not well configured." );
         }
     }
 
@@ -119,32 +131,43 @@ public final class NotifyCRMWebService
      */
     public void sendUpdateDemand( String strIdDemand, String strStatusText )
     {
-        String strUrl = AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_WEBSERVICE_CRM_NOTIFICATION_REST_URL ) +
-            NotifyCRMConstants.URL_REST_UPDATE_DEMAND;
+        String strCRMNotificationRestWebappUrl = AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_WEBSERVICE_REST_CRM_NOTIFICATION_WEBAPP_URL );
 
-        // List parameters to post
-        Map<String, String> params = new HashMap<String, String>(  );
-        params.put( NotifyCRMConstants.PARAMETER_ID_DEMAND, strIdDemand );
-        params.put( NotifyCRMConstants.PARAMETER_ID_STATUS_CRM, StringUtils.EMPTY );
-        params.put( NotifyCRMConstants.PARAMETER_STATUS_TEXT, strStatusText );
-        params.put( NotifyCRMConstants.PARAMETER_DEMAND_DATA, StringUtils.EMPTY );
-
-        // List elements to include to the signature
-        List<String> listElements = new ArrayList<String>(  );
-        listElements.add( strIdDemand );
-        listElements.add( StringUtils.EMPTY );
-        listElements.add( strStatusText );
-        listElements.add( StringUtils.EMPTY );
-
-        try
+        if ( StringUtils.isNotBlank( strCRMNotificationRestWebappUrl ) )
         {
-            HttpAccess httpAccess = new HttpAccess(  );
-            httpAccess.doPost( strUrl, params, NotifyCRMRequestAuthenticator.getRequestAuthenticator(  ), listElements );
+            String strUrl = strCRMNotificationRestWebappUrl + NotifyCRMConstants.URL_REST_UPDATE_DEMAND;
+
+            // List parameters to post
+            Map<String, String> params = new HashMap<String, String>(  );
+            params.put( NotifyCRMConstants.PARAMETER_ID_DEMAND, strIdDemand );
+            params.put( NotifyCRMConstants.PARAMETER_ID_STATUS_CRM, StringUtils.EMPTY );
+            params.put( NotifyCRMConstants.PARAMETER_STATUS_TEXT, strStatusText );
+            params.put( NotifyCRMConstants.PARAMETER_DEMAND_DATA, StringUtils.EMPTY );
+
+            // List elements to include to the signature
+            List<String> listElements = new ArrayList<String>(  );
+            listElements.add( strIdDemand );
+            listElements.add( StringUtils.EMPTY );
+            listElements.add( strStatusText );
+            listElements.add( StringUtils.EMPTY );
+
+            try
+            {
+                HttpAccess httpAccess = new HttpAccess(  );
+                httpAccess.doPost( strUrl, params, NotifyCRMRequestAuthenticator.getRequestAuthenticator(  ),
+                    listElements );
+            }
+            catch ( HttpAccessException e )
+            {
+                String strError = "NotifyCRMWebServices - Error connecting to '" + strUrl + "' : ";
+                AppLogService.error( strError + e.getMessage(  ), e );
+                throw new AppException( e.getMessage(  ), e );
+            }
         }
-        catch ( HttpAccessException e )
+        else
         {
-            String strError = "NotifyCRMWebServices - Error connecting to '" + strUrl + "' : ";
-            AppLogService.error( strError + e.getMessage(  ), e );
+            throw new AppException( 
+                "NotifyCRMWebService - Could not update the demand : The property file 'workflow-notifycrm.properties' is not well configured." );
         }
     }
 }

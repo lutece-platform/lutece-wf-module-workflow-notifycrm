@@ -46,12 +46,12 @@ import fr.paris.lutece.plugins.directory.business.RecordFieldHome;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.plugins.workflow.business.ActionHome;
-import fr.paris.lutece.plugins.workflow.business.ResourceHistory;
 import fr.paris.lutece.plugins.workflow.business.StateFilter;
 import fr.paris.lutece.plugins.workflow.business.StateHome;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
 import fr.paris.lutece.plugins.workflow.service.WorkflowPlugin;
+import fr.paris.lutece.plugins.workflow.service.WorkflowWebService;
 import fr.paris.lutece.portal.business.workflow.Action;
 import fr.paris.lutece.portal.business.workflow.State;
 import fr.paris.lutece.portal.service.i18n.I18nService;
@@ -79,43 +79,23 @@ import java.util.Map;
 public final class NotifyCRMService
 {
     private static final String BEAN_NOTIFY_CRM_SERVICE = "workflow-notifycrm.notifyCRMService";
+    private List<Integer> _listAcceptedEntryTypesIdDemand;
     private List<Integer> _listRefusedEntryTypes;
-    private List<Integer> _listAcceptedEntryTypes;
+    private List<Integer> _listAcceptedEntryTypesUserGuid;
 
     /**
      * Private constructor
      */
     private NotifyCRMService(  )
     {
-        // Init list accepted entry types
-        _listAcceptedEntryTypes = new ArrayList<Integer>(  );
-
-        String strAcceptEntryTypes = AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE );
-        String[] listAcceptEntryTypes = strAcceptEntryTypes.split( NotifyCRMConstants.COMMA );
-
-        for ( String strAcceptEntryType : listAcceptEntryTypes )
-        {
-            if ( StringUtils.isNotBlank( strAcceptEntryType ) && StringUtils.isNumeric( strAcceptEntryType ) )
-            {
-                int nAcceptedEntryType = Integer.parseInt( strAcceptEntryType );
-                _listAcceptedEntryTypes.add( nAcceptedEntryType );
-            }
-        }
+        // Init list accepted entry types for id demand
+        _listAcceptedEntryTypesIdDemand = fillListEntryTypes( NotifyCRMConstants.PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_ID_DEMAND );
 
         // Init list refused entry types
-        _listRefusedEntryTypes = new ArrayList<Integer>(  );
+        _listRefusedEntryTypes = fillListEntryTypes( NotifyCRMConstants.PROPERTY_REFUSED_DIRECTORY_ENTRY_TYPE );
 
-        String strRefusedEntryTypes = AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_REFUSED_DIRECTORY_ENTRY_TYPE );
-        String[] listRefusedEntryTypes = strRefusedEntryTypes.split( NotifyCRMConstants.COMMA );
-
-        for ( String strRefusedEntryType : listRefusedEntryTypes )
-        {
-            if ( StringUtils.isNotBlank( strRefusedEntryType ) && StringUtils.isNumeric( strRefusedEntryType ) )
-            {
-                int nRefusedEntryType = Integer.parseInt( strRefusedEntryType );
-                _listRefusedEntryTypes.add( nRefusedEntryType );
-            }
-        }
+        // Init list accepted entry types for user guid
+        _listAcceptedEntryTypesUserGuid = fillListEntryTypes( NotifyCRMConstants.PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_USER_GUID );
     }
 
     /**
@@ -127,6 +107,35 @@ public final class NotifyCRMService
         return (NotifyCRMService) SpringContextService.getPluginBean( NotifyCRMPlugin.PLUGIN_NAME,
             BEAN_NOTIFY_CRM_SERVICE );
     }
+
+    /**
+     * Fill the list of entry types
+     * @param strPropertyEntryTypes the property containing the entry types
+     * @return a list of integer
+     */
+    public static List<Integer> fillListEntryTypes( String strPropertyEntryTypes )
+    {
+        List<Integer> listEntryTypes = new ArrayList<Integer>(  );
+        String strEntryTypes = AppPropertiesService.getProperty( strPropertyEntryTypes );
+
+        if ( StringUtils.isNotBlank( strEntryTypes ) )
+        {
+            String[] listAcceptEntryTypesForIdDemand = strEntryTypes.split( NotifyCRMConstants.COMMA );
+
+            for ( String strAcceptEntryType : listAcceptEntryTypesForIdDemand )
+            {
+                if ( StringUtils.isNotBlank( strAcceptEntryType ) && StringUtils.isNumeric( strAcceptEntryType ) )
+                {
+                    int nAcceptedEntryType = Integer.parseInt( strAcceptEntryType );
+                    listEntryTypes.add( nAcceptedEntryType );
+                }
+            }
+        }
+
+        return listEntryTypes;
+    }
+
+    // CHECKS
 
     /**
      * Check if the given entry type id is refused
@@ -146,21 +155,40 @@ public final class NotifyCRMService
     }
 
     /**
-     * Check if the given entry type id is accepted
+     * Check if the given entry type id is accepted for the id demand
      * @param nIdEntryType the id entry type
      * @return true if it is accepted, false otherwise
      */
-    public boolean isEntryTypeAccepted( int nIdEntryType )
+    public boolean isEntryTypeIdDemandAccepted( int nIdEntryType )
     {
         boolean bIsAccepted = true;
 
-        if ( ( _listAcceptedEntryTypes != null ) && !_listAcceptedEntryTypes.isEmpty(  ) )
+        if ( ( _listAcceptedEntryTypesIdDemand != null ) && !_listAcceptedEntryTypesIdDemand.isEmpty(  ) )
         {
-            bIsAccepted = _listAcceptedEntryTypes.contains( nIdEntryType );
+            bIsAccepted = _listAcceptedEntryTypesIdDemand.contains( nIdEntryType );
         }
 
         return bIsAccepted;
     }
+
+    /**
+     * Check if the given entry type id is accepted for the user guid
+     * @param nIdEntryType the id entry type
+     * @return true if it is accepted, false otherwise
+     */
+    public boolean isEntryTypeUserGuidAccepted( int nIdEntryType )
+    {
+        boolean bIsAccepted = true;
+
+        if ( ( _listAcceptedEntryTypesUserGuid != null ) && !_listAcceptedEntryTypesUserGuid.isEmpty(  ) )
+        {
+            bIsAccepted = _listAcceptedEntryTypesUserGuid.contains( nIdEntryType );
+        }
+
+        return bIsAccepted;
+    }
+
+    // GETS
 
     /**
      * Get the list of states
@@ -208,53 +236,7 @@ public final class NotifyCRMService
     }
 
     /**
-     * Get the list of entries that have the accepted type (which are defined in <b>workflow-notifycrm.properties</b>)
-     * @param nIdTask the id task
-     * @param locale the Locale
-     * @return a ReferenceList
-     */
-    public ReferenceList getListEntries( int nIdTask, Locale locale )
-    {
-        TaskNotifyCRMConfig config = TaskNotifyCRMConfigService.getService(  ).findByPrimaryKey( nIdTask );
-        Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
-        ReferenceList refenreceListEntries = new ReferenceList(  );
-        refenreceListEntries.addItem( DirectoryUtils.CONSTANT_ID_NULL, DirectoryUtils.EMPTY_STRING );
-
-        if ( config != null )
-        {
-            EntryFilter entryFilter = new EntryFilter(  );
-            entryFilter.setIdDirectory( config.getIdDirectory(  ) );
-            entryFilter.setIsGroup( EntryFilter.FILTER_FALSE );
-            entryFilter.setIsComment( EntryFilter.FILTER_FALSE );
-
-            for ( IEntry entry : EntryHome.getEntryList( entryFilter, pluginDirectory ) )
-            {
-                int nIdEntryType = entry.getEntryType(  ).getIdType(  );
-
-                if ( isEntryTypeAccepted( nIdEntryType ) )
-                {
-                    StringBuilder sbReferenceEntry = new StringBuilder(  );
-                    sbReferenceEntry.append( entry.getPosition(  ) );
-                    sbReferenceEntry.append( NotifyCRMConstants.SPACE + NotifyCRMConstants.OPEN_BRACKET );
-                    sbReferenceEntry.append( I18nService.getLocalizedString( 
-                            NotifyCRMConstants.PROPERTY_LABEL_REFERENCED_ENTRY, locale ) );
-                    sbReferenceEntry.append( entry.getTitle(  ) );
-                    sbReferenceEntry.append( NotifyCRMConstants.SPACE + NotifyCRMConstants.HYPHEN +
-                        NotifyCRMConstants.SPACE );
-                    sbReferenceEntry.append( I18nService.getLocalizedString( 
-                            entry.getEntryType(  ).getTitleI18nKey(  ), locale ) );
-                    sbReferenceEntry.append( NotifyCRMConstants.CLOSED_BRACKET );
-
-                    refenreceListEntries.addItem( entry.getPosition(  ), sbReferenceEntry.toString(  ) );
-                }
-            }
-        }
-
-        return refenreceListEntries;
-    }
-
-    /**
-     * Get the list of entries that have not the refused type (which are defined in the <b>workflow-notifycrm.properties</b>)
+     * Get the list of entries from a given id task
      * @param nIdTask the id task
      * @return a list of IEntry
      */
@@ -271,14 +253,78 @@ public final class NotifyCRMService
             EntryFilter entryFilter = new EntryFilter(  );
             entryFilter.setIdDirectory( config.getIdDirectory(  ) );
 
-            for ( IEntry entry : EntryHome.getEntryList( entryFilter, pluginDirectory ) )
-            {
-                int nIdEntryType = entry.getEntryType(  ).getIdType(  );
+            listEntries = EntryHome.getEntryList( entryFilter, pluginDirectory );
+        }
 
-                if ( !isEntryTypeRefused( nIdEntryType ) )
-                {
-                    listEntries.add( entry );
-                }
+        return listEntries;
+    }
+
+    /**
+     * Get the list of entries that have the accepted type (which are defined in <b>workflow-notifycrm.properties</b>)
+     * @param nIdTask the id task
+     * @param locale the Locale
+     * @return a ReferenceList
+     */
+    public ReferenceList getListEntriesIdDemand( int nIdTask, Locale locale )
+    {
+        ReferenceList refenreceListEntries = new ReferenceList(  );
+        refenreceListEntries.addItem( DirectoryUtils.CONSTANT_ID_NULL, DirectoryUtils.EMPTY_STRING );
+
+        for ( IEntry entry : getListEntries( nIdTask ) )
+        {
+            int nIdEntryType = entry.getEntryType(  ).getIdType(  );
+
+            if ( isEntryTypeIdDemandAccepted( nIdEntryType ) )
+            {
+                refenreceListEntries.addItem( entry.getPosition(  ), buildReferenceEntryToString( entry, locale ) );
+            }
+        }
+
+        return refenreceListEntries;
+    }
+
+    /**
+     * Get the list of entries that have the accepted type (which are defined in <b>workflow-notifycrm.properties</b>)
+     * @param nIdTask the id task
+     * @param locale the Locale
+     * @return a ReferenceList
+     */
+    public ReferenceList getListEntriesUserGuid( int nIdTask, Locale locale )
+    {
+        ReferenceList refenreceListEntries = new ReferenceList(  );
+        refenreceListEntries.addItem( DirectoryUtils.CONSTANT_ID_NULL, DirectoryUtils.EMPTY_STRING );
+
+        for ( IEntry entry : getListEntries( nIdTask ) )
+        {
+            int nIdEntryType = entry.getEntryType(  ).getIdType(  );
+
+            if ( isEntryTypeUserGuidAccepted( nIdEntryType ) )
+            {
+                refenreceListEntries.addItem( entry.getPosition(  ), buildReferenceEntryToString( entry, locale ) );
+            }
+        }
+
+        return refenreceListEntries;
+    }
+
+    /**
+     * Get the list of entries that have not the refused type (which are defined in the <b>workflow-notifycrm.properties</b>).
+     * <br />
+     * This list will be displayed as a freemarker label that the webmaster can use to write the notifications.
+     * @param nIdTask the id task
+     * @return a list of {@link IEntry}
+     */
+    public List<IEntry> getListEntriesFreemarker( int nIdTask )
+    {
+        List<IEntry> listEntries = new ArrayList<IEntry>(  );
+
+        for ( IEntry entry : getListEntries( nIdTask ) )
+        {
+            int nIdEntryType = entry.getEntryType(  ).getIdType(  );
+
+            if ( !isEntryTypeRefused( nIdEntryType ) )
+            {
+                listEntries.add( entry );
             }
         }
 
@@ -288,61 +334,49 @@ public final class NotifyCRMService
     /**
      * Get the id demand
      * @param config the config
-     * @param resourceHistory the resource history
      * @param nIdRecord the id record
      * @param nIdDirectory the id directory
      * @return the id demand
      */
-    public String getIdDemand( TaskNotifyCRMConfig config, ResourceHistory resourceHistory, int nIdRecord,
-        int nIdDirectory )
+    public String getIdDemand( TaskNotifyCRMConfig config, int nIdRecord, int nIdDirectory )
     {
-        String strReceiver = StringUtils.EMPTY;
-        Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+        String strIdDemand = StringUtils.EMPTY;
 
-        // RecordField Id demand
-        EntryFilter entryFilterIdDemand = new EntryFilter(  );
-        entryFilterIdDemand.setPosition( config.getPositionEntryDirectoryIdDemand(  ) );
-        entryFilterIdDemand.setIdDirectory( nIdDirectory );
-
-        List<IEntry> listEntriesIdDemand = EntryHome.getEntryList( entryFilterIdDemand, pluginDirectory );
-
-        if ( ( listEntriesIdDemand != null ) && !listEntriesIdDemand.isEmpty(  ) )
+        if ( config.getPositionEntryDirectoryIdDemand(  ) != DirectoryUtils.CONSTANT_ID_NULL )
         {
-            IEntry entryUserGuid = listEntriesIdDemand.get( 0 );
-            RecordFieldFilter recordFieldFilterEmail = new RecordFieldFilter(  );
-            recordFieldFilterEmail.setIdDirectory( nIdDirectory );
-            recordFieldFilterEmail.setIdEntry( entryUserGuid.getIdEntry(  ) );
-            recordFieldFilterEmail.setIdRecord( nIdRecord );
-
-            List<RecordField> listRecordFieldsUserGuid = RecordFieldHome.getRecordFieldList( recordFieldFilterEmail,
-                    pluginDirectory );
-
-            if ( ( listRecordFieldsUserGuid != null ) && !listRecordFieldsUserGuid.isEmpty(  ) &&
-                    ( listRecordFieldsUserGuid.get( 0 ) != null ) )
-            {
-                RecordField recordFieldIdDemand = listRecordFieldsUserGuid.get( 0 );
-                strReceiver = recordFieldIdDemand.getValue(  );
-
-                if ( recordFieldIdDemand.getField(  ) != null )
-                {
-                    strReceiver = recordFieldIdDemand.getField(  ).getTitle(  );
-                }
-            }
+            strIdDemand = getRecordFieldValue( config.getPositionEntryDirectoryIdDemand(  ), nIdRecord, nIdDirectory );
         }
 
-        return strReceiver;
+        return strIdDemand;
+    }
+
+    /**
+     * Get the user guid
+     * @param config the config
+     * @param nIdRecord the id record
+     * @param nIdDirectory the id directory
+     * @return the user guid, an empty string if the position is not set
+     */
+    public String getUserGuid( TaskNotifyCRMConfig config, int nIdRecord, int nIdDirectory )
+    {
+        String strUserGuid = StringUtils.EMPTY;
+
+        if ( config.getPositionEntryDirectoryUserGuid(  ) != DirectoryUtils.CONSTANT_ID_NULL )
+        {
+            strUserGuid = getRecordFieldValue( config.getPositionEntryDirectoryUserGuid(  ), nIdRecord, nIdDirectory );
+        }
+
+        return strUserGuid;
     }
 
     /**
      * Fill the model for the notification message
      * @param config the config
-     * @param resourceHistory the resource history
      * @param record the record
      * @param directory the directory
      * @return the model filled
      */
-    public Map<String, String> fillModel( TaskNotifyCRMConfig config, ResourceHistory resourceHistory, Record record,
-        Directory directory )
+    public Map<String, String> fillModel( TaskNotifyCRMConfig config, Record record, Directory directory )
     {
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
 
@@ -396,6 +430,80 @@ public final class NotifyCRMService
             model.put( NotifyCRMConstants.MARK_STATUS, state.getName(  ) );
         }
 
+        // Fill the model with the user attributes
+        String strUserGuid = getUserGuid( config, record.getIdRecord(  ), directory.getIdDirectory(  ) );
+
+        if ( StringUtils.isNotBlank( strUserGuid ) )
+        {
+            WorkflowWebService.getService(  ).fillUserAttributesToModel( model, strUserGuid );
+        }
+
         return model;
+    }
+
+    /**
+     * Build the reference entry into String
+     * @param entry the entry
+     * @param locale the Locale
+     * @return the reference entry
+     */
+    private String buildReferenceEntryToString( IEntry entry, Locale locale )
+    {
+        StringBuilder sbReferenceEntry = new StringBuilder(  );
+        sbReferenceEntry.append( entry.getPosition(  ) );
+        sbReferenceEntry.append( NotifyCRMConstants.SPACE + NotifyCRMConstants.OPEN_BRACKET );
+        sbReferenceEntry.append( I18nService.getLocalizedString( NotifyCRMConstants.PROPERTY_LABEL_REFERENCED_ENTRY,
+                locale ) );
+        sbReferenceEntry.append( entry.getTitle(  ) );
+        sbReferenceEntry.append( NotifyCRMConstants.SPACE + NotifyCRMConstants.HYPHEN + NotifyCRMConstants.SPACE );
+        sbReferenceEntry.append( I18nService.getLocalizedString( entry.getEntryType(  ).getTitleI18nKey(  ), locale ) );
+        sbReferenceEntry.append( NotifyCRMConstants.CLOSED_BRACKET );
+
+        return sbReferenceEntry.toString(  );
+    }
+
+    /**
+     * Get the record field value
+     * @param nPosition the position of the entry
+     * @param nIdRecord the id record
+     * @param nIdDirectory the id directory
+     * @return the record field value
+     */
+    private String getRecordFieldValue( int nPosition, int nIdRecord, int nIdDirectory )
+    {
+        String strRecordFieldValue = StringUtils.EMPTY;
+        Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+        // RecordField
+        EntryFilter entryFilter = new EntryFilter(  );
+        entryFilter.setPosition( nPosition );
+        entryFilter.setIdDirectory( nIdDirectory );
+
+        List<IEntry> listEntries = EntryHome.getEntryList( entryFilter, pluginDirectory );
+
+        if ( ( listEntries != null ) && !listEntries.isEmpty(  ) )
+        {
+            IEntry entry = listEntries.get( 0 );
+            RecordFieldFilter recordFieldFilterEmail = new RecordFieldFilter(  );
+            recordFieldFilterEmail.setIdDirectory( nIdDirectory );
+            recordFieldFilterEmail.setIdEntry( entry.getIdEntry(  ) );
+            recordFieldFilterEmail.setIdRecord( nIdRecord );
+
+            List<RecordField> listRecordFields = RecordFieldHome.getRecordFieldList( recordFieldFilterEmail,
+                    pluginDirectory );
+
+            if ( ( listRecordFields != null ) && !listRecordFields.isEmpty(  ) && ( listRecordFields.get( 0 ) != null ) )
+            {
+                RecordField recordFieldIdDemand = listRecordFields.get( 0 );
+                strRecordFieldValue = recordFieldIdDemand.getValue(  );
+
+                if ( recordFieldIdDemand.getField(  ) != null )
+                {
+                    strRecordFieldValue = recordFieldIdDemand.getField(  ).getTitle(  );
+                }
+            }
+        }
+
+        return strRecordFieldValue;
     }
 }

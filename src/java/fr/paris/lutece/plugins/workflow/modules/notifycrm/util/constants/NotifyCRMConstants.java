@@ -51,8 +51,9 @@ public final class NotifyCRMConstants
     public static final String NAME = "name";
 
     // PROPERTIES
-    public static final String PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE = "workflow-notifycrm.acceptedDirectoryEntryTypes";
+    public static final String PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_ID_DEMAND = "workflow-notifycrm.acceptedDirectoryEntryTypesIdDemand";
     public static final String PROPERTY_REFUSED_DIRECTORY_ENTRY_TYPE = "workflow-notifycrm.refusedDirectoryEntryTypes";
+    public static final String PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_USER_GUID = "workflow-notifycrm.acceptedDirectoryEntryTypesUserGuid";
     public static final String PROPERTY_DEFAULT_SENDER_NAME = "workflow-notifycrm.defaultSenderName";
     public static final String PROPERTY_LABEL_REFERENCED_ENTRY = "module.workflow.notifycrm.task_notify_crm_config.label_reference_entry";
     public static final String PROPERTY_LABEL_DIRECTORY = "module.workflow.notifycrm.task_notify_crm_config.label_task_directory";
@@ -61,12 +62,13 @@ public final class NotifyCRMConstants
     public static final String PROPERTY_LABEL_SUBJECT = "module.workflow.notifycrm.task_notify_crm_config.label_subject";
     public static final String PROPERTY_LABEL_MESSAGE = "module.workflow.notifycrm.task_notify_crm_config.label_message";
     public static final String PROPERTY_LABEL_STATUS_TEXT = "module.workflow.notifycrm.task_notify_crm_config.label_status_text";
-    public static final String PROPERTY_WEBSERVICE_CRM_NOTIFICATION_REST_URL = "workflow-notifycrm.webapp.crmNotification.rest.url";
+    public static final String PROPERTY_WEBSERVICE_REST_CRM_NOTIFICATION_WEBAPP_URL = "workflow-notifycrm.rest.crmNotification.webapp.url";
 
     // MARKS
     public static final String MARK_CONFIG = "config";
     public static final String MARK_LIST_STATES = "list_states";
-    public static final String MARK_LIST_ENTRIES = "list_entries";
+    public static final String MARK_LIST_ENTRIES_ID_DEMAND = "list_entries_id_demand";
+    public static final String MARK_LIST_ENTRIES_USER_GUID = "list_entries_user_guid";
     public static final String MARK_LIST_DIRECTORIES = "list_directories";
     public static final String MARK_LIST_ENTRIES_FREEMARKER = "list_entries_freemarker";
     public static final String MARK_DEFAULT_SENDER_NAME = "default_sender_name";
@@ -75,6 +77,9 @@ public final class NotifyCRMConstants
     public static final String MARK_POSITION = "position_";
     public static final String MARK_DIRECTORY_TITLE = "directory_title";
     public static final String MARK_DIRECTORY_DESCRIPTION = "directory_description";
+    public static final String MARK_WEBAPP_URL = "webapp_url";
+    public static final String MARK_LOCALE = "locale";
+    public static final String MARK_IS_USER_ATTRIBUTE_WS_ACTIVE = "is_user_attribute_ws_active";
 
     // PARAMETERS
     public static final String PARAMETER_SUBJECT = "subject";
@@ -82,6 +87,7 @@ public final class NotifyCRMConstants
     public static final String PARAMETER_SENDER_NAME = "sender_name";
     public static final String PARAMETER_ID_DIRECTORY = "id_directory";
     public static final String PARAMETER_POSITION_ENTRY_DIRECTORY_ID_DEMAND = "position_entry_directory_id_demand";
+    public static final String PARAMETER_POSITION_ENTRY_DIRECTORY_USER_GUID = "position_entry_directory_user_guid";
     public static final String PARAMETER_APPLY = "apply";
     public static final String PARAMETER_NOTIFICATION_OBJECT = "notification_object";
     public static final String PARAMETER_NOTIFICATION_MESSAGE = "notification_message";
