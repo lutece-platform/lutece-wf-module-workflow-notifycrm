@@ -111,7 +111,8 @@ public class TaskNotifyCRM extends Task
                 {
                     record.setDirectory( directory );
 
-                    Map<String, String> model = notifyCRMService.fillModel( config, record, directory );
+                    Map<String, String> model = notifyCRMService.fillModel( config, record, directory,
+                            request.getLocale(  ) );
                     HtmlTemplate template = AppTemplateService.getTemplateFromStringFtl( AppTemplateService.getTemplate( 
                                 TEMPLATE_TASK_NOTIFY_CRM_NOTIFICATION, locale, model ).getHtml(  ), locale, model );
 

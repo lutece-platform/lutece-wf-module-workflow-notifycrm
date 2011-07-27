@@ -374,9 +374,10 @@ public final class NotifyCRMService
      * @param config the config
      * @param record the record
      * @param directory the directory
+     * @param locale the Locale
      * @return the model filled
      */
-    public Map<String, String> fillModel( TaskNotifyCRMConfig config, Record record, Directory directory )
+    public Map<String, String> fillModel( TaskNotifyCRMConfig config, Record record, Directory directory, Locale locale )
     {
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
 
@@ -392,9 +393,14 @@ public final class NotifyCRMService
 
         for ( RecordField recordField : listRecordField )
         {
-            String value = recordField.getValue(  );
+            String value = recordField.getEntry(  ).convertRecordFieldValueToString( recordField, locale, false, false );
 
             if ( isEntryTypeRefused( recordField.getEntry(  ).getEntryType(  ).getIdType(  ) ) )
+            {
+                continue;
+            }
+            else if ( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation &&
+                    !recordField.getField(  ).getTitle(  ).equals( EntryTypeGeolocation.CONSTANT_ADDRESS ) )
             {
                 continue;
             }
@@ -409,11 +415,6 @@ public final class NotifyCRMService
                 {
                     value = listRecordField.get( 0 ).getField(  ).getTitle(  );
                 }
-            }
-            else if ( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation &&
-                    !recordField.getField(  ).getTitle(  ).equals( EntryTypeGeolocation.CONSTANT_ADDRESS ) )
-            {
-                continue;
             }
 
             recordField.setEntry( EntryHome.findByPrimaryKey( recordField.getEntry(  ).getIdEntry(  ), pluginDirectory ) );
