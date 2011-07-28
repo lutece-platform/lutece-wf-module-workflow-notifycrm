@@ -161,7 +161,7 @@ public final class NotifyCRMService
      */
     public boolean isEntryTypeIdDemandAccepted( int nIdEntryType )
     {
-        boolean bIsAccepted = true;
+        boolean bIsAccepted = false;
 
         if ( ( _listAcceptedEntryTypesIdDemand != null ) && !_listAcceptedEntryTypesIdDemand.isEmpty(  ) )
         {
@@ -178,7 +178,7 @@ public final class NotifyCRMService
      */
     public boolean isEntryTypeUserGuidAccepted( int nIdEntryType )
     {
-        boolean bIsAccepted = true;
+        boolean bIsAccepted = false;
 
         if ( ( _listAcceptedEntryTypesUserGuid != null ) && !_listAcceptedEntryTypesUserGuid.isEmpty(  ) )
         {
