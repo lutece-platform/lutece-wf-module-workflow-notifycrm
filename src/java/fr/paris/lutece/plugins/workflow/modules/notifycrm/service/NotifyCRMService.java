@@ -432,10 +432,9 @@ public final class NotifyCRMService
         }
 
         // Fill the model with the user attributes
-        String strUserGuid = getUserGuid( config, record.getIdRecord(  ), directory.getIdDirectory(  ) );
-
-        if ( StringUtils.isNotBlank( strUserGuid ) )
+        if ( WorkflowWebService.isUserAttributeWSActive(  ) )
         {
+            String strUserGuid = getUserGuid( config, record.getIdRecord(  ), directory.getIdDirectory(  ) );
             WorkflowWebService.getService(  ).fillUserAttributesToModel( model, strUserGuid );
         }
 
@@ -453,8 +452,6 @@ public final class NotifyCRMService
         StringBuilder sbReferenceEntry = new StringBuilder(  );
         sbReferenceEntry.append( entry.getPosition(  ) );
         sbReferenceEntry.append( NotifyCRMConstants.SPACE + NotifyCRMConstants.OPEN_BRACKET );
-        sbReferenceEntry.append( I18nService.getLocalizedString( NotifyCRMConstants.PROPERTY_LABEL_REFERENCED_ENTRY,
-                locale ) );
         sbReferenceEntry.append( entry.getTitle(  ) );
         sbReferenceEntry.append( NotifyCRMConstants.SPACE + NotifyCRMConstants.HYPHEN + NotifyCRMConstants.SPACE );
         sbReferenceEntry.append( I18nService.getLocalizedString( entry.getEntryType(  ).getTitleI18nKey(  ), locale ) );
