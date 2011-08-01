@@ -33,8 +33,8 @@
  */
 package fr.paris.lutece.plugins.workflow.modules.notifycrm.service;
 
+import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.signrequest.NotifyCRMRequestAuthenticatorService;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
-import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.signrequest.NotifyCRMRequestAuthenticator;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -107,7 +107,7 @@ public final class NotifyCRMWebService
             try
             {
                 HttpAccess httpAccess = new HttpAccess(  );
-                httpAccess.doPost( strUrl, params, NotifyCRMRequestAuthenticator.getRequestAuthenticator(  ),
+                httpAccess.doPost( strUrl, params, NotifyCRMRequestAuthenticatorService.getRequestAuthenticator(  ),
                     listElements );
             }
             catch ( HttpAccessException e )
@@ -154,7 +154,7 @@ public final class NotifyCRMWebService
             try
             {
                 HttpAccess httpAccess = new HttpAccess(  );
-                httpAccess.doPost( strUrl, params, NotifyCRMRequestAuthenticator.getRequestAuthenticator(  ),
+                httpAccess.doPost( strUrl, params, NotifyCRMRequestAuthenticatorService.getRequestAuthenticator(  ),
                     listElements );
             }
             catch ( HttpAccessException e )

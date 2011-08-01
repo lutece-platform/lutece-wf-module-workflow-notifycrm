@@ -19,7 +19,7 @@
 	
 	<!-- SignRequest -->
     <bean id="workflow-notifycrm.hashService" class="fr.paris.lutece.util.signrequest.security.Sha1HashService" />
-    <bean id="workflow-notifycrm.requestAuthenticator" class="fr.paris.lutece.util.signrequest.SimpleHashAuthenticator" >
+    <bean id="workflow-notifycrm.requestAuthenticator" class="fr.paris.lutece.util.signrequest.HeaderHashAuthenticator" >
         <property name="hashService" ref="workflow-notifycrm.hashService" />
         <property name="signatureElements" > 
             <list>
