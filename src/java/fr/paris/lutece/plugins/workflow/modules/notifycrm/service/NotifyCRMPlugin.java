@@ -43,7 +43,7 @@ import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
  */
 public class NotifyCRMPlugin extends PluginDefaultImplementation
 {
-    public static final String PLUGIN_NAME = "notifycrm";
+    public static final String PLUGIN_NAME = "workflow-notifycrm";
 
     /**
      * Initialise the NotifyCRMPlugin
