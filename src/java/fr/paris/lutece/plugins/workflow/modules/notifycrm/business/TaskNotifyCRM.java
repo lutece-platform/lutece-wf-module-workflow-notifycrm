@@ -151,7 +151,6 @@ public class TaskNotifyCRM extends Task
         model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_USER_GUID,
             notifyCRMService.getListEntriesUserGuid( getId(  ), locale ) );
         model.put( NotifyCRMConstants.MARK_LIST_DIRECTORIES, notifyCRMService.getListDirectories(  ) );
-        model.put( NotifyCRMConstants.MARK_LIST_STATES, notifyCRMService.getListStates( getAction(  ).getId(  ) ) );
         model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_FREEMARKER,
             notifyCRMService.getListEntriesFreemarker( getId(  ) ) );
         model.put( NotifyCRMConstants.MARK_WEBAPP_URL, AppPathService.getBaseUrl( request ) );

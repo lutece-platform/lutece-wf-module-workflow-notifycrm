@@ -191,32 +191,6 @@ public final class NotifyCRMService
     // GETS
 
     /**
-     * Get the list of states
-     * @param nIdAction the id action
-     * @return a ReferenceList
-     */
-    public ReferenceList getListStates( int nIdAction )
-    {
-        Plugin pluginWorkflow = PluginService.getPlugin( WorkflowPlugin.PLUGIN_NAME );
-        ReferenceList referenceListStates = new ReferenceList(  );
-        Action action = ActionHome.findByPrimaryKey( nIdAction, pluginWorkflow );
-
-        if ( ( action != null ) && ( action.getWorkflow(  ) != null ) )
-        {
-            StateFilter stateFilter = new StateFilter(  );
-            stateFilter.setIdWorkflow( action.getWorkflow(  ).getId(  ) );
-
-            List<State> listStates = StateHome.getListStateByFilter( stateFilter, pluginWorkflow );
-
-            referenceListStates.addItem( DirectoryUtils.CONSTANT_ID_NULL, StringUtils.EMPTY );
-            referenceListStates.addAll( ReferenceList.convert( listStates, NotifyCRMConstants.ID,
-                    NotifyCRMConstants.NAME, true ) );
-        }
-
-        return referenceListStates;
-    }
-
-    /**
      * Get the list of directorise
      * @return a ReferenceList
      */

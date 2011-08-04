@@ -66,7 +66,6 @@ public final class NotifyCRMConstants
 
     // MARKS
     public static final String MARK_CONFIG = "config";
-    public static final String MARK_LIST_STATES = "list_states";
     public static final String MARK_LIST_ENTRIES_ID_DEMAND = "list_entries_id_demand";
     public static final String MARK_LIST_ENTRIES_USER_GUID = "list_entries_user_guid";
     public static final String MARK_LIST_DIRECTORIES = "list_directories";
