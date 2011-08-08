@@ -79,6 +79,9 @@ public final class NotifyCRMConstants
     public static final String MARK_WEBAPP_URL = "webapp_url";
     public static final String MARK_LOCALE = "locale";
     public static final String MARK_IS_USER_ATTRIBUTE_WS_ACTIVE = "is_user_attribute_ws_active";
+    public static final String MARK_TASK = "task_";
+    public static final String MARK_PLUGIN_WORKFLOW = "plugin_workflow";
+    public static final String MARK_TASKS_LIST = "tasks_list";
 
     // PARAMETERS
     public static final String PARAMETER_SUBJECT = "subject";

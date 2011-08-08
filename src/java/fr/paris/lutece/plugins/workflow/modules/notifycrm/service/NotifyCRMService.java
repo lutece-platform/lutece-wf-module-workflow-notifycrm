@@ -45,14 +45,14 @@ import fr.paris.lutece.plugins.directory.business.RecordFieldFilter;
 import fr.paris.lutece.plugins.directory.business.RecordFieldHome;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
-import fr.paris.lutece.plugins.workflow.business.ActionHome;
-import fr.paris.lutece.plugins.workflow.business.StateFilter;
-import fr.paris.lutece.plugins.workflow.business.StateHome;
+import fr.paris.lutece.plugins.workflow.business.task.ITask;
+import fr.paris.lutece.plugins.workflow.business.task.TaskHome;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
 import fr.paris.lutece.plugins.workflow.service.WorkflowPlugin;
 import fr.paris.lutece.plugins.workflow.service.WorkflowWebService;
-import fr.paris.lutece.portal.business.workflow.Action;
+import fr.paris.lutece.plugins.workflow.service.taskinfo.ITaskInfoProvider;
+import fr.paris.lutece.plugins.workflow.service.taskinfo.TaskInfoManager;
 import fr.paris.lutece.portal.business.workflow.State;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -69,6 +69,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -344,94 +346,30 @@ public final class NotifyCRMService
     }
 
     /**
-     * Fill the model for the notification message
-     * @param config the config
-     * @param record the record
-     * @param directory the directory
-     * @param locale the Locale
-     * @return the model filled
+     * Get the list of tasks
+     * @param nIdAction the id action
+     * @param locale the locale
+     * @return a list of {@link ITask}
      */
-    public Map<String, String> fillModel( TaskNotifyCRMConfig config, Record record, Directory directory, Locale locale )
+    public List<ITask> getListTasks( int nIdAction, Locale locale )
     {
-        Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+        List<ITask> listTasks = new ArrayList<ITask>(  );
+        Plugin pluginWorkflow = PluginService.getPlugin( WorkflowPlugin.PLUGIN_NAME );
 
-        Map<String, String> model = new HashMap<String, String>(  );
-        model.put( NotifyCRMConstants.MARK_MESSAGE, config.getMessage(  ) );
-        model.put( NotifyCRMConstants.MARK_DIRECTORY_TITLE, directory.getTitle(  ) );
-        model.put( NotifyCRMConstants.MARK_DIRECTORY_DESCRIPTION, directory.getDescription(  ) );
-
-        RecordFieldFilter recordFieldFilter = new RecordFieldFilter(  );
-        recordFieldFilter.setIdRecord( record.getIdRecord(  ) );
-
-        List<RecordField> listRecordField = RecordFieldHome.getRecordFieldList( recordFieldFilter, pluginDirectory );
-
-        for ( RecordField recordField : listRecordField )
+        for ( ITask task : TaskHome.getListTaskByIdAction( nIdAction, pluginWorkflow, locale ) )
         {
-            String value = recordField.getEntry(  ).convertRecordFieldValueToString( recordField, locale, false, false );
-
-            if ( isEntryTypeRefused( recordField.getEntry(  ).getEntryType(  ).getIdType(  ) ) )
+            for ( ITaskInfoProvider provider : TaskInfoManager.getManager(  ).getProvidersList(  ) )
             {
-                continue;
-            }
-            else if ( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation &&
-                    !recordField.getField(  ).getTitle(  ).equals( EntryTypeGeolocation.CONSTANT_ADDRESS ) )
-            {
-                continue;
-            }
-            else if ( ( recordField.getField(  ) != null ) &&
-                    !( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation ) )
-            {
-                recordFieldFilter.setIdEntry( recordField.getEntry(  ).getIdEntry(  ) );
-                listRecordField = RecordFieldHome.getRecordFieldList( recordFieldFilter, pluginDirectory );
-
-                if ( ( listRecordField.get( 0 ) != null ) && ( listRecordField.get( 0 ).getField(  ) != null ) &&
-                        ( listRecordField.get( 0 ).getField(  ).getTitle(  ) != null ) )
+                if ( task.getTaskType(  ).getKey(  ).equals( provider.getTaskType(  ).getKey(  ) ) )
                 {
-                    value = listRecordField.get( 0 ).getField(  ).getTitle(  );
+                    listTasks.add( task );
+
+                    break;
                 }
             }
-
-            recordField.setEntry( EntryHome.findByPrimaryKey( recordField.getEntry(  ).getIdEntry(  ), pluginDirectory ) );
-            model.put( NotifyCRMConstants.MARK_POSITION + String.valueOf( recordField.getEntry(  ).getPosition(  ) ),
-                value );
         }
 
-        if ( ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) &&
-                WorkflowService.getInstance(  ).isAvailable(  ) )
-        {
-            State state = WorkflowService.getInstance(  )
-                                         .getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
-                    directory.getIdWorkflow(  ), null, null );
-            model.put( NotifyCRMConstants.MARK_STATUS, state.getName(  ) );
-        }
-
-        // Fill the model with the user attributes
-        if ( WorkflowWebService.isUserAttributeWSActive(  ) )
-        {
-            String strUserGuid = getUserGuid( config, record.getIdRecord(  ), directory.getIdDirectory(  ) );
-            WorkflowWebService.getService(  ).fillUserAttributesToModel( model, strUserGuid );
-        }
-
-        return model;
-    }
-
-    /**
-     * Build the reference entry into String
-     * @param entry the entry
-     * @param locale the Locale
-     * @return the reference entry
-     */
-    private String buildReferenceEntryToString( IEntry entry, Locale locale )
-    {
-        StringBuilder sbReferenceEntry = new StringBuilder(  );
-        sbReferenceEntry.append( entry.getPosition(  ) );
-        sbReferenceEntry.append( NotifyCRMConstants.SPACE + NotifyCRMConstants.OPEN_BRACKET );
-        sbReferenceEntry.append( entry.getTitle(  ) );
-        sbReferenceEntry.append( NotifyCRMConstants.SPACE + NotifyCRMConstants.HYPHEN + NotifyCRMConstants.SPACE );
-        sbReferenceEntry.append( I18nService.getLocalizedString( entry.getEntryType(  ).getTitleI18nKey(  ), locale ) );
-        sbReferenceEntry.append( NotifyCRMConstants.CLOSED_BRACKET );
-
-        return sbReferenceEntry.toString(  );
+        return listTasks;
     }
 
     /**
@@ -477,5 +415,107 @@ public final class NotifyCRMService
         }
 
         return strRecordFieldValue;
+    }
+
+    /**
+     * Fill the model for the notification message
+     * @param config the config
+     * @param record the record
+     * @param directory the directory
+     * @param request the HTTP request
+     * @param nIdAction the id action
+     * @param nIdHistory the id history
+     * @return the model filled
+     */
+    public Map<String, String> fillModel( TaskNotifyCRMConfig config, Record record, Directory directory,
+        HttpServletRequest request, int nIdAction, int nIdHistory )
+    {
+        Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+        Map<String, String> model = new HashMap<String, String>(  );
+        model.put( NotifyCRMConstants.MARK_MESSAGE, config.getMessage(  ) );
+        model.put( NotifyCRMConstants.MARK_DIRECTORY_TITLE, directory.getTitle(  ) );
+        model.put( NotifyCRMConstants.MARK_DIRECTORY_DESCRIPTION, directory.getDescription(  ) );
+
+        RecordFieldFilter recordFieldFilter = new RecordFieldFilter(  );
+        recordFieldFilter.setIdRecord( record.getIdRecord(  ) );
+
+        List<RecordField> listRecordField = RecordFieldHome.getRecordFieldList( recordFieldFilter, pluginDirectory );
+
+        for ( RecordField recordField : listRecordField )
+        {
+            String value = recordField.getEntry(  )
+                                      .convertRecordFieldValueToString( recordField, request.getLocale(  ), false, false );
+
+            if ( isEntryTypeRefused( recordField.getEntry(  ).getEntryType(  ).getIdType(  ) ) )
+            {
+                continue;
+            }
+            else if ( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation &&
+                    !recordField.getField(  ).getTitle(  ).equals( EntryTypeGeolocation.CONSTANT_ADDRESS ) )
+            {
+                continue;
+            }
+            else if ( ( recordField.getField(  ) != null ) &&
+                    !( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation ) )
+            {
+                recordFieldFilter.setIdEntry( recordField.getEntry(  ).getIdEntry(  ) );
+                listRecordField = RecordFieldHome.getRecordFieldList( recordFieldFilter, pluginDirectory );
+
+                if ( ( listRecordField.get( 0 ) != null ) && ( listRecordField.get( 0 ).getField(  ) != null ) &&
+                        ( listRecordField.get( 0 ).getField(  ).getTitle(  ) != null ) )
+                {
+                    value = listRecordField.get( 0 ).getField(  ).getTitle(  );
+                }
+            }
+
+            recordField.setEntry( EntryHome.findByPrimaryKey( recordField.getEntry(  ).getIdEntry(  ), pluginDirectory ) );
+            model.put( NotifyCRMConstants.MARK_POSITION + String.valueOf( recordField.getEntry(  ).getPosition(  ) ),
+                value );
+        }
+
+        if ( ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) &&
+                WorkflowService.getInstance(  ).isAvailable(  ) )
+        {
+            State state = WorkflowService.getInstance(  )
+                                         .getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
+                    directory.getIdWorkflow(  ), null, null );
+            model.put( NotifyCRMConstants.MARK_STATUS, state.getName(  ) );
+        }
+
+        // Fill the model with the user attributes
+        if ( WorkflowWebService.isUserAttributeWSActive(  ) )
+        {
+            String strUserGuid = getUserGuid( config, record.getIdRecord(  ), directory.getIdDirectory(  ) );
+            WorkflowWebService.getService(  ).fillUserAttributesToModel( model, strUserGuid );
+        }
+
+        // Fill the model with the info of other tasks
+        for ( ITask task : getListTasks( nIdAction, request.getLocale(  ) ) )
+        {
+            model.put( NotifyCRMConstants.MARK_TASK + task.getId(  ),
+                TaskInfoManager.getManager(  ).getTaskResourceInfo( nIdHistory, task.getId(  ), request ) );
+        }
+
+        return model;
+    }
+
+    /**
+     * Build the reference entry into String
+     * @param entry the entry
+     * @param locale the Locale
+     * @return the reference entry
+     */
+    private String buildReferenceEntryToString( IEntry entry, Locale locale )
+    {
+        StringBuilder sbReferenceEntry = new StringBuilder(  );
+        sbReferenceEntry.append( entry.getPosition(  ) );
+        sbReferenceEntry.append( NotifyCRMConstants.SPACE + NotifyCRMConstants.OPEN_BRACKET );
+        sbReferenceEntry.append( entry.getTitle(  ) );
+        sbReferenceEntry.append( NotifyCRMConstants.SPACE + NotifyCRMConstants.HYPHEN + NotifyCRMConstants.SPACE );
+        sbReferenceEntry.append( I18nService.getLocalizedString( entry.getEntryType(  ).getTitleI18nKey(  ), locale ) );
+        sbReferenceEntry.append( NotifyCRMConstants.CLOSED_BRACKET );
+
+        return sbReferenceEntry.toString(  );
     }
 }
