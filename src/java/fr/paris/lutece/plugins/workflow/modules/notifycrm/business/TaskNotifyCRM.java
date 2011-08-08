@@ -47,7 +47,7 @@ import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.NotifyCRMWebSe
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.TaskNotifyCRMConfigService;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
 import fr.paris.lutece.plugins.workflow.service.WorkflowPlugin;
-import fr.paris.lutece.plugins.workflow.service.WorkflowWebService;
+import fr.paris.lutece.plugins.workflow.service.security.WorkflowUserAttributesManager;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
@@ -112,7 +112,7 @@ public class TaskNotifyCRM extends Task
                 {
                     record.setDirectory( directory );
 
-                    Map<String, String> model = notifyCRMService.fillModel( config, record, directory, request,
+                    Map<String, Object> model = notifyCRMService.fillModel( config, record, directory, request,
                             getAction(  ).getId(  ), nIdResourceHistory );
                     HtmlTemplate template = AppTemplateService.getTemplateFromStringFtl( AppTemplateService.getTemplate( 
                                 TEMPLATE_TASK_NOTIFY_CRM_NOTIFICATION, locale, model ).getHtml(  ), locale, model );
@@ -157,7 +157,8 @@ public class TaskNotifyCRM extends Task
             notifyCRMService.getListEntriesFreemarker( getId(  ) ) );
         model.put( NotifyCRMConstants.MARK_WEBAPP_URL, AppPathService.getBaseUrl( request ) );
         model.put( NotifyCRMConstants.MARK_LOCALE, request.getLocale(  ) );
-        model.put( NotifyCRMConstants.MARK_IS_USER_ATTRIBUTE_WS_ACTIVE, WorkflowWebService.isUserAttributeWSActive(  ) );
+        model.put( NotifyCRMConstants.MARK_IS_USER_ATTRIBUTE_WS_ACTIVE,
+            WorkflowUserAttributesManager.getManager(  ).isEnabled(  ) );
         model.put( NotifyCRMConstants.MARK_PLUGIN_WORKFLOW, pluginWorkflow );
         model.put( NotifyCRMConstants.MARK_LOCALE, locale );
         model.put( NotifyCRMConstants.MARK_TASKS_LIST, notifyCRMService.getListTasks( getAction(  ).getId(  ), locale ) );

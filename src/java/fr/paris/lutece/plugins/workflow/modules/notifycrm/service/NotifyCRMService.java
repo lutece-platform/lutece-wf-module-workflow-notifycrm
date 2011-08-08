@@ -50,13 +50,14 @@ import fr.paris.lutece.plugins.workflow.business.task.TaskHome;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
 import fr.paris.lutece.plugins.workflow.service.WorkflowPlugin;
-import fr.paris.lutece.plugins.workflow.service.WorkflowWebService;
+import fr.paris.lutece.plugins.workflow.service.security.WorkflowUserAttributesManager;
 import fr.paris.lutece.plugins.workflow.service.taskinfo.ITaskInfoProvider;
 import fr.paris.lutece.plugins.workflow.service.taskinfo.TaskInfoManager;
 import fr.paris.lutece.portal.business.workflow.State;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
+import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
@@ -427,12 +428,12 @@ public final class NotifyCRMService
      * @param nIdHistory the id history
      * @return the model filled
      */
-    public Map<String, String> fillModel( TaskNotifyCRMConfig config, Record record, Directory directory,
+    public Map<String, Object> fillModel( TaskNotifyCRMConfig config, Record record, Directory directory,
         HttpServletRequest request, int nIdAction, int nIdHistory )
     {
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
 
-        Map<String, String> model = new HashMap<String, String>(  );
+        Map<String, Object> model = new HashMap<String, Object>(  );
         model.put( NotifyCRMConstants.MARK_MESSAGE, config.getMessage(  ) );
         model.put( NotifyCRMConstants.MARK_DIRECTORY_TITLE, directory.getTitle(  ) );
         model.put( NotifyCRMConstants.MARK_DIRECTORY_DESCRIPTION, directory.getDescription(  ) );
@@ -484,11 +485,8 @@ public final class NotifyCRMService
         }
 
         // Fill the model with the user attributes
-        if ( WorkflowWebService.isUserAttributeWSActive(  ) )
-        {
-            String strUserGuid = getUserGuid( config, record.getIdRecord(  ), directory.getIdDirectory(  ) );
-            WorkflowWebService.getService(  ).fillUserAttributesToModel( model, strUserGuid );
-        }
+        String strUserGuid = getUserGuid( config, record.getIdRecord(  ), directory.getIdDirectory(  ) );
+        fillModelWithUserAttributes( model, strUserGuid );
 
         // Fill the model with the info of other tasks
         for ( ITask task : getListTasks( nIdAction, request.getLocale(  ) ) )
@@ -498,6 +496,32 @@ public final class NotifyCRMService
         }
 
         return model;
+    }
+
+    /**
+     * Fills the model with user attributes
+     * @param model the model
+     * @param strUserGuid the user guid
+     */
+    private void fillModelWithUserAttributes( Map<String, Object> model, String strUserGuid )
+    {
+        if ( WorkflowUserAttributesManager.getManager(  ).isEnabled(  ) )
+        {
+            Map<String, String> mapUserAttributes = WorkflowUserAttributesManager.getManager(  )
+                                                                                 .getAttributes( strUserGuid );
+            String strFirstName = mapUserAttributes.get( LuteceUser.NAME_GIVEN );
+            String strLastName = mapUserAttributes.get( LuteceUser.NAME_FAMILY );
+            String strEmail = mapUserAttributes.get( LuteceUser.BUSINESS_INFO_ONLINE_EMAIL );
+            String strPhoneNumber = mapUserAttributes.get( LuteceUser.BUSINESS_INFO_TELECOM_TELEPHONE_NUMBER );
+
+            model.put( NotifyCRMConstants.MARK_FIRST_NAME,
+                StringUtils.isNotEmpty( strFirstName ) ? strFirstName : StringUtils.EMPTY );
+            model.put( NotifyCRMConstants.MARK_LAST_NAME,
+                StringUtils.isNotEmpty( strLastName ) ? strLastName : StringUtils.EMPTY );
+            model.put( NotifyCRMConstants.MARK_EMAIL, StringUtils.isNotEmpty( strEmail ) ? strEmail : StringUtils.EMPTY );
+            model.put( NotifyCRMConstants.MARK_PHONE_NUMBER,
+                StringUtils.isNotEmpty( strPhoneNumber ) ? strPhoneNumber : StringUtils.EMPTY );
+        }
     }
 
     /**
