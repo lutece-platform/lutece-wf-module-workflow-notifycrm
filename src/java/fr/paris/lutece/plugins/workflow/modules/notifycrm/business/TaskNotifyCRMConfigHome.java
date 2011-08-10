@@ -49,7 +49,7 @@ import java.util.List;
 public final class TaskNotifyCRMConfigHome
 {
     private static final String BEAN_TASK_NOTIFY_CRM_CONFIG_DAO = "workflow-notifycrm.taskNotifyCRMConfigDAO";
-    private static final Plugin _plugin = PluginService.getPlugin( NotifyCRMPlugin.PLUGIN_NAME );
+    private static Plugin _plugin = PluginService.getPlugin( NotifyCRMPlugin.PLUGIN_NAME );
     private static ITaskNotifyCRMConfigDAO _dao = (ITaskNotifyCRMConfigDAO) SpringContextService.getPluginBean( NotifyCRMPlugin.PLUGIN_NAME,
             BEAN_TASK_NOTIFY_CRM_CONFIG_DAO );
 
