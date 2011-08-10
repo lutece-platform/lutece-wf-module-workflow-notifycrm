@@ -111,33 +111,6 @@ public final class NotifyCRMService
             BEAN_NOTIFY_CRM_SERVICE );
     }
 
-    /**
-     * Fill the list of entry types
-     * @param strPropertyEntryTypes the property containing the entry types
-     * @return a list of integer
-     */
-    public static List<Integer> fillListEntryTypes( String strPropertyEntryTypes )
-    {
-        List<Integer> listEntryTypes = new ArrayList<Integer>(  );
-        String strEntryTypes = AppPropertiesService.getProperty( strPropertyEntryTypes );
-
-        if ( StringUtils.isNotBlank( strEntryTypes ) )
-        {
-            String[] listAcceptEntryTypesForIdDemand = strEntryTypes.split( NotifyCRMConstants.COMMA );
-
-            for ( String strAcceptEntryType : listAcceptEntryTypesForIdDemand )
-            {
-                if ( StringUtils.isNotBlank( strAcceptEntryType ) && StringUtils.isNumeric( strAcceptEntryType ) )
-                {
-                    int nAcceptedEntryType = Integer.parseInt( strAcceptEntryType );
-                    listEntryTypes.add( nAcceptedEntryType );
-                }
-            }
-        }
-
-        return listEntryTypes;
-    }
-
     // CHECKS
 
     /**
@@ -373,6 +346,90 @@ public final class NotifyCRMService
         return listTasks;
     }
 
+    // OTHERS
+
+    /**
+     * Fill the model for the notification message
+     * @param config the config
+     * @param record the record
+     * @param directory the directory
+     * @param request the HTTP request
+     * @param nIdAction the id action
+     * @param nIdHistory the id history
+     * @return the model filled
+     */
+    public Map<String, Object> fillModel( TaskNotifyCRMConfig config, Record record, Directory directory,
+        HttpServletRequest request, int nIdAction, int nIdHistory )
+    {
+        Locale locale = getLocale( request );
+        Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+        Map<String, Object> model = new HashMap<String, Object>(  );
+        model.put( NotifyCRMConstants.MARK_MESSAGE, config.getMessage(  ) );
+        model.put( NotifyCRMConstants.MARK_DIRECTORY_TITLE, directory.getTitle(  ) );
+        model.put( NotifyCRMConstants.MARK_DIRECTORY_DESCRIPTION, directory.getDescription(  ) );
+
+        RecordFieldFilter recordFieldFilter = new RecordFieldFilter(  );
+        recordFieldFilter.setIdRecord( record.getIdRecord(  ) );
+
+        List<RecordField> listRecordField = RecordFieldHome.getRecordFieldList( recordFieldFilter, pluginDirectory );
+
+        for ( RecordField recordField : listRecordField )
+        {
+            String value = recordField.getEntry(  ).convertRecordFieldValueToString( recordField, locale, false, false );
+
+            if ( isEntryTypeRefused( recordField.getEntry(  ).getEntryType(  ).getIdType(  ) ) )
+            {
+                continue;
+            }
+            else if ( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation &&
+                    !recordField.getField(  ).getTitle(  ).equals( EntryTypeGeolocation.CONSTANT_ADDRESS ) )
+            {
+                continue;
+            }
+            else if ( ( recordField.getField(  ) != null ) &&
+                    !( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation ) )
+            {
+                recordFieldFilter.setIdEntry( recordField.getEntry(  ).getIdEntry(  ) );
+                listRecordField = RecordFieldHome.getRecordFieldList( recordFieldFilter, pluginDirectory );
+
+                if ( ( listRecordField.get( 0 ) != null ) && ( listRecordField.get( 0 ).getField(  ) != null ) &&
+                        ( listRecordField.get( 0 ).getField(  ).getTitle(  ) != null ) )
+                {
+                    value = listRecordField.get( 0 ).getField(  ).getTitle(  );
+                }
+            }
+
+            recordField.setEntry( EntryHome.findByPrimaryKey( recordField.getEntry(  ).getIdEntry(  ), pluginDirectory ) );
+            model.put( NotifyCRMConstants.MARK_POSITION + String.valueOf( recordField.getEntry(  ).getPosition(  ) ),
+                value );
+        }
+
+        if ( ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) &&
+                WorkflowService.getInstance(  ).isAvailable(  ) )
+        {
+            State state = WorkflowService.getInstance(  )
+                                         .getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
+                    directory.getIdWorkflow(  ), null, null );
+            model.put( NotifyCRMConstants.MARK_STATUS, state.getName(  ) );
+        }
+
+        // Fill the model with the user attributes
+        String strUserGuid = getUserGuid( config, record.getIdRecord(  ), directory.getIdDirectory(  ) );
+        fillModelWithUserAttributes( model, strUserGuid );
+
+        // Fill the model with the info of other tasks
+        for ( ITask task : getListTasks( nIdAction, locale ) )
+        {
+            model.put( NotifyCRMConstants.MARK_TASK + task.getId(  ),
+                TaskInfoManager.getManager(  ).getTaskResourceInfo( nIdHistory, task.getId(  ), request ) );
+        }
+
+        return model;
+    }
+
+    // PRIVATES METHODS
+
     /**
      * Get the record field value
      * @param nPosition the position of the entry
@@ -419,83 +476,24 @@ public final class NotifyCRMService
     }
 
     /**
-     * Fill the model for the notification message
-     * @param config the config
-     * @param record the record
-     * @param directory the directory
+     * Get the locale
      * @param request the HTTP request
-     * @param nIdAction the id action
-     * @param nIdHistory the id history
-     * @return the model filled
+     * @return the locale
      */
-    public Map<String, Object> fillModel( TaskNotifyCRMConfig config, Record record, Directory directory,
-        HttpServletRequest request, int nIdAction, int nIdHistory )
+    private Locale getLocale( HttpServletRequest request )
     {
-        Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+        Locale locale = null;
 
-        Map<String, Object> model = new HashMap<String, Object>(  );
-        model.put( NotifyCRMConstants.MARK_MESSAGE, config.getMessage(  ) );
-        model.put( NotifyCRMConstants.MARK_DIRECTORY_TITLE, directory.getTitle(  ) );
-        model.put( NotifyCRMConstants.MARK_DIRECTORY_DESCRIPTION, directory.getDescription(  ) );
-
-        RecordFieldFilter recordFieldFilter = new RecordFieldFilter(  );
-        recordFieldFilter.setIdRecord( record.getIdRecord(  ) );
-
-        List<RecordField> listRecordField = RecordFieldHome.getRecordFieldList( recordFieldFilter, pluginDirectory );
-
-        for ( RecordField recordField : listRecordField )
+        if ( request != null )
         {
-            String value = recordField.getEntry(  )
-                                      .convertRecordFieldValueToString( recordField, request.getLocale(  ), false, false );
-
-            if ( isEntryTypeRefused( recordField.getEntry(  ).getEntryType(  ).getIdType(  ) ) )
-            {
-                continue;
-            }
-            else if ( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation &&
-                    !recordField.getField(  ).getTitle(  ).equals( EntryTypeGeolocation.CONSTANT_ADDRESS ) )
-            {
-                continue;
-            }
-            else if ( ( recordField.getField(  ) != null ) &&
-                    !( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation ) )
-            {
-                recordFieldFilter.setIdEntry( recordField.getEntry(  ).getIdEntry(  ) );
-                listRecordField = RecordFieldHome.getRecordFieldList( recordFieldFilter, pluginDirectory );
-
-                if ( ( listRecordField.get( 0 ) != null ) && ( listRecordField.get( 0 ).getField(  ) != null ) &&
-                        ( listRecordField.get( 0 ).getField(  ).getTitle(  ) != null ) )
-                {
-                    value = listRecordField.get( 0 ).getField(  ).getTitle(  );
-                }
-            }
-
-            recordField.setEntry( EntryHome.findByPrimaryKey( recordField.getEntry(  ).getIdEntry(  ), pluginDirectory ) );
-            model.put( NotifyCRMConstants.MARK_POSITION + String.valueOf( recordField.getEntry(  ).getPosition(  ) ),
-                value );
+            locale = request.getLocale(  );
+        }
+        else
+        {
+            locale = I18nService.getDefaultLocale(  );
         }
 
-        if ( ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) &&
-                WorkflowService.getInstance(  ).isAvailable(  ) )
-        {
-            State state = WorkflowService.getInstance(  )
-                                         .getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
-                    directory.getIdWorkflow(  ), null, null );
-            model.put( NotifyCRMConstants.MARK_STATUS, state.getName(  ) );
-        }
-
-        // Fill the model with the user attributes
-        String strUserGuid = getUserGuid( config, record.getIdRecord(  ), directory.getIdDirectory(  ) );
-        fillModelWithUserAttributes( model, strUserGuid );
-
-        // Fill the model with the info of other tasks
-        for ( ITask task : getListTasks( nIdAction, request.getLocale(  ) ) )
-        {
-            model.put( NotifyCRMConstants.MARK_TASK + task.getId(  ),
-                TaskInfoManager.getManager(  ).getTaskResourceInfo( nIdHistory, task.getId(  ), request ) );
-        }
-
-        return model;
+        return locale;
     }
 
     /**
@@ -541,5 +539,32 @@ public final class NotifyCRMService
         sbReferenceEntry.append( NotifyCRMConstants.CLOSED_BRACKET );
 
         return sbReferenceEntry.toString(  );
+    }
+
+    /**
+     * Fill the list of entry types
+     * @param strPropertyEntryTypes the property containing the entry types
+     * @return a list of integer
+     */
+    private static List<Integer> fillListEntryTypes( String strPropertyEntryTypes )
+    {
+        List<Integer> listEntryTypes = new ArrayList<Integer>(  );
+        String strEntryTypes = AppPropertiesService.getProperty( strPropertyEntryTypes );
+
+        if ( StringUtils.isNotBlank( strEntryTypes ) )
+        {
+            String[] listAcceptEntryTypesForIdDemand = strEntryTypes.split( NotifyCRMConstants.COMMA );
+
+            for ( String strAcceptEntryType : listAcceptEntryTypesForIdDemand )
+            {
+                if ( StringUtils.isNotBlank( strAcceptEntryType ) && StringUtils.isNumeric( strAcceptEntryType ) )
+                {
+                    int nAcceptedEntryType = Integer.parseInt( strAcceptEntryType );
+                    listEntryTypes.add( nAcceptedEntryType );
+                }
+            }
+        }
+
+        return listEntryTypes;
     }
 }
