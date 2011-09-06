@@ -119,7 +119,8 @@ public class TaskNotifyCRM extends Task
 
                     String strIdDemand = notifyCRMService.getIdDemand( config, record.getIdRecord(  ),
                             directory.getIdDirectory(  ) );
-                    String strObject = config.getSubject(  );
+                    String strObject = AppTemplateService.getTemplateFromStringFtl( config.getSubject(  ), locale, model )
+                                                         .getHtml(  );
                     String strMessage = template.getHtml(  );
                     String strSender = config.getSenderName(  );
                     String strStatusText = config.getStatusText(  );
