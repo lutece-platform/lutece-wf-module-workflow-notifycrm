@@ -7,6 +7,7 @@ CREATE TABLE task_notify_crm_cf(
   id_directory INT DEFAULT NULL,
   position_directory_entry_id_demand INT DEFAULT NULL,
   position_directory_entry_user_guid INT DEFAULT NULL,
+  send_notification SMALLINT DEFAULT 1 NOT NULL,
   sender_name VARCHAR(255) DEFAULT NULL, 
   subject VARCHAR(255) DEFAULT NULL, 
   message long VARCHAR DEFAULT NULL,

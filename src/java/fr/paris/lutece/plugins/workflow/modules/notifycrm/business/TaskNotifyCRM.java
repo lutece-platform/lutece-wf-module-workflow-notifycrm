@@ -112,20 +112,25 @@ public class TaskNotifyCRM extends Task
                 {
                     record.setDirectory( directory );
 
-                    Map<String, Object> model = notifyCRMService.fillModel( config, record, directory, request,
-                            getAction(  ).getId(  ), nIdResourceHistory );
-                    HtmlTemplate template = AppTemplateService.getTemplateFromStringFtl( AppTemplateService.getTemplate( 
-                                TEMPLATE_TASK_NOTIFY_CRM_NOTIFICATION, locale, model ).getHtml(  ), locale, model );
-
                     String strIdDemand = notifyCRMService.getIdDemand( config, record.getIdRecord(  ),
                             directory.getIdDirectory(  ) );
-                    String strObject = AppTemplateService.getTemplateFromStringFtl( config.getSubject(  ), locale, model )
-                                                         .getHtml(  );
-                    String strMessage = template.getHtml(  );
-                    String strSender = config.getSenderName(  );
                     String strStatusText = config.getStatusText(  );
 
-                    NotifyCRMWebService.getService(  ).notify( strIdDemand, strObject, strMessage, strSender );
+                    if ( config.getSendNotification(  ) )
+                    {
+                        Map<String, Object> model = notifyCRMService.fillModel( config, record, directory, request,
+                                getAction(  ).getId(  ), nIdResourceHistory );
+                        HtmlTemplate template = AppTemplateService.getTemplateFromStringFtl( AppTemplateService.getTemplate( 
+                                    TEMPLATE_TASK_NOTIFY_CRM_NOTIFICATION, locale, model ).getHtml(  ), locale, model );
+
+                        String strObject = AppTemplateService.getTemplateFromStringFtl( config.getSubject(  ), locale,
+                                model ).getHtml(  );
+                        String strMessage = template.getHtml(  );
+                        String strSender = config.getSenderName(  );
+
+                        NotifyCRMWebService.getService(  ).notify( strIdDemand, strObject, strMessage, strSender );
+                    }
+
                     NotifyCRMWebService.getService(  ).sendUpdateDemand( strIdDemand, strStatusText );
                 }
             }
@@ -249,6 +254,7 @@ public class TaskNotifyCRM extends Task
             String strIdDirectory = request.getParameter( NotifyCRMConstants.PARAMETER_ID_DIRECTORY );
             String strPositionEntryDirectoryIdDemand = request.getParameter( NotifyCRMConstants.PARAMETER_POSITION_ENTRY_DIRECTORY_ID_DEMAND );
             String strPositionEntryDirectoryUserGuid = request.getParameter( NotifyCRMConstants.PARAMETER_POSITION_ENTRY_DIRECTORY_USER_GUID );
+            String strSendNotification = request.getParameter( NotifyCRMConstants.PARAMETER_SEND_NOTIFICATION );
             String strSenderName = request.getParameter( NotifyCRMConstants.PARAMETER_SENDER_NAME );
             String strSubject = request.getParameter( NotifyCRMConstants.PARAMETER_SUBJECT );
             String strMessage = request.getParameter( NotifyCRMConstants.PARAMETER_MESSAGE );
@@ -256,6 +262,7 @@ public class TaskNotifyCRM extends Task
 
             int nIdDirectory = DirectoryUtils.CONSTANT_ID_NULL;
             int nPositionEntryDirectoryIdDemand = DirectoryUtils.CONSTANT_ID_NULL;
+            boolean bSendNotification = StringUtils.isNotBlank( strSendNotification );
 
             if ( StringUtils.isNotBlank( strIdDirectory ) && StringUtils.isNumeric( strIdDirectory ) )
             {
@@ -293,10 +300,11 @@ public class TaskNotifyCRM extends Task
                 config.setPositionEntryDirectoryUserGuid( DirectoryUtils.CONSTANT_ID_NULL );
             }
 
-            config.setMessage( strMessage );
-            config.setSenderName( strSenderName );
-            config.setSubject( strSubject );
-            config.setStatusText( strStatusText );
+            config.setSendNotification( bSendNotification );
+            config.setMessage( StringUtils.isNotBlank( strMessage ) ? strMessage : StringUtils.EMPTY );
+            config.setSenderName( StringUtils.isNotBlank( strSenderName ) ? strSenderName : StringUtils.EMPTY );
+            config.setSubject( StringUtils.isNotBlank( strSubject ) ? strSubject : StringUtils.EMPTY );
+            config.setStatusText( StringUtils.isNotBlank( strStatusText ) ? strStatusText : StringUtils.EMPTY );
 
             if ( bCreate )
             {
@@ -359,6 +367,7 @@ public class TaskNotifyCRM extends Task
         // Fetch parameters
         String strIdDirectory = request.getParameter( NotifyCRMConstants.PARAMETER_ID_DIRECTORY );
         String strPositionEntryDirectoryIdDemand = request.getParameter( NotifyCRMConstants.PARAMETER_POSITION_ENTRY_DIRECTORY_ID_DEMAND );
+        String strSendNotification = request.getParameter( NotifyCRMConstants.PARAMETER_SEND_NOTIFICATION );
         String strSenderName = request.getParameter( NotifyCRMConstants.PARAMETER_SENDER_NAME );
         String strSubject = request.getParameter( NotifyCRMConstants.PARAMETER_SUBJECT );
         String strMessage = request.getParameter( NotifyCRMConstants.PARAMETER_MESSAGE );
@@ -367,6 +376,7 @@ public class TaskNotifyCRM extends Task
 
         int nIdDirectory = DirectoryUtils.CONSTANT_ID_NULL;
         int nPositionEntryDirectoryIdDemand = DirectoryUtils.CONSTANT_ID_NULL;
+        boolean bSendNotification = StringUtils.isNotBlank( strSendNotification );
 
         if ( StringUtils.isNotBlank( strIdDirectory ) && StringUtils.isNumeric( strIdDirectory ) )
         {
@@ -393,21 +403,24 @@ public class TaskNotifyCRM extends Task
             {
                 strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_POSITION_ENTRY_DIRECTORY_ID_DEMAND;
             }
-            else if ( StringUtils.isBlank( strSenderName ) )
-            {
-                strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_SENDER_NAME;
-            }
-            else if ( StringUtils.isBlank( strSubject ) )
-            {
-                strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_SUBJECT;
-            }
-            else if ( StringUtils.isBlank( strMessage ) )
-            {
-                strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_MESSAGE;
-            }
             else if ( StringUtils.isBlank( strStatusText ) )
             {
                 strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_STATUS_TEXT;
+            }
+            else if ( bSendNotification )
+            {
+                if ( StringUtils.isBlank( strSenderName ) )
+                {
+                    strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_SENDER_NAME;
+                }
+                else if ( StringUtils.isBlank( strSubject ) )
+                {
+                    strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_SUBJECT;
+                }
+                else if ( StringUtils.isBlank( strMessage ) )
+                {
+                    strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_MESSAGE;
+                }
             }
 
             if ( StringUtils.isNotBlank( strRequiredField ) )

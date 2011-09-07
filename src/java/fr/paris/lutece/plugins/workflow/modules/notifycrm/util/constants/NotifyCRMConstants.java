@@ -94,6 +94,7 @@ public final class NotifyCRMConstants
     public static final String PARAMETER_ID_DIRECTORY = "id_directory";
     public static final String PARAMETER_POSITION_ENTRY_DIRECTORY_ID_DEMAND = "position_entry_directory_id_demand";
     public static final String PARAMETER_POSITION_ENTRY_DIRECTORY_USER_GUID = "position_entry_directory_user_guid";
+    public static final String PARAMETER_SEND_NOTIFICATION = "send_notification";
     public static final String PARAMETER_APPLY = "apply";
     public static final String PARAMETER_NOTIFICATION_OBJECT = "notification_object";
     public static final String PARAMETER_NOTIFICATION_MESSAGE = "notification_message";

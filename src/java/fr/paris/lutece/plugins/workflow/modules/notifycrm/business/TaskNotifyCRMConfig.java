@@ -45,6 +45,7 @@ public class TaskNotifyCRMConfig
     private int _nIdDirectory;
     private int _nPositionEntryDirectoryIdDemand;
     private int _nPositionEntryDirectoryUserGuid;
+    private boolean _bSendNotification;
     private String _strSubject;
     private String _strMessage;
     private String _strSenderName;
@@ -123,9 +124,27 @@ public class TaskNotifyCRMConfig
     }
 
     /**
-     * Get the subject
-     * @return the subject of the message
+     * Set true if it must send a notification, false otherwise
+     * @param bSendNotification true if it must send a notification, false otherwise
      */
+    public void setSendNotification( boolean bSendNotification )
+    {
+        _bSendNotification = bSendNotification;
+    }
+
+    /**
+     * Return true if it must send a notification, false otherwise
+     * @return true if it must send a notification, false otherwise
+     */
+    public boolean getSendNotification(  )
+    {
+        return _bSendNotification;
+    }
+
+    /**
+    * Get the subject
+    * @return the subject of the message
+    */
     public String getSubject(  )
     {
         return _strSubject;
