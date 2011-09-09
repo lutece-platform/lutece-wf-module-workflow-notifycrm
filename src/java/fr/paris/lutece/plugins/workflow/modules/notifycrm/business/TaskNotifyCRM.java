@@ -220,7 +220,7 @@ public class TaskNotifyCRM extends Task
             strTitle = config.getSubject(  );
         }
 
-        return strTitle;
+        return StringUtils.isNotBlank( strTitle ) ? strTitle : StringUtils.EMPTY;
     }
 
     // DO
