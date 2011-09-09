@@ -503,7 +503,7 @@ public final class NotifyCRMService
      */
     private void fillModelWithUserAttributes( Map<String, Object> model, String strUserGuid )
     {
-        if ( WorkflowUserAttributesManager.getManager(  ).isEnabled(  ) )
+        if ( WorkflowUserAttributesManager.getManager(  ).isEnabled(  ) && StringUtils.isNotBlank( strUserGuid ) )
         {
             Map<String, String> mapUserAttributes = WorkflowUserAttributesManager.getManager(  )
                                                                                  .getAttributes( strUserGuid );
