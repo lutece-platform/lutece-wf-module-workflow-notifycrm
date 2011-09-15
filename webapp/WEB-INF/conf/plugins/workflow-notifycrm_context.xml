@@ -8,7 +8,6 @@
 	<!-- Services -->
 	<bean id="workflow-notifycrm.taskNotifyCRMConfigService" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.TaskNotifyCRMConfigService"/>
 	<bean id="workflow-notifycrm.notifyCRMService" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.NotifyCRMService"/>
-	<bean id="workflow-notifycrm.notifyCRMWebService" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.NotifyCRMWebService"/>
 
 	<!-- Tasks -->
 	<bean id="workflow-notifycrm.taskNotifyCRM" class="fr.paris.lutece.plugins.workflow.business.task.TaskType" >
@@ -16,27 +15,5 @@
 		<property name="titleI18nKey" value="module.workflow.notifycrm.task_notify_crm_title" />
 		<property name="className" value="fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRM"/>
 	</bean>
-	
-	<!-- SignRequest -->
-    <bean id="workflow-notifycrm.hashService" class="fr.paris.lutece.util.signrequest.security.Sha1HashService" />
-    <bean id="workflow-notifycrm.requestAuthenticator" class="fr.paris.lutece.util.signrequest.HeaderHashAuthenticator" >
-        <property name="hashService" ref="workflow-notifycrm.hashService" />
-        <property name="signatureElements" > 
-            <list>
-                <value>id_demand_type</value>
-                <value>id_demand</value>
-                <value>id_crm_user</value>
-                <value>user_guid</value>
-                <value>id_status_crm</value>
-                <value>status_text</value>
-                <value>demand_data</value>
-                <value>notification_object</value>
-                <value>notification_sender</value>
-            </list>
-        </property>
-        <property name="privateKey">
-            <value>change me</value>
-        </property>
-    </bean>
 </beans>
  	

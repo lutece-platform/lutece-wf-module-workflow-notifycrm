@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.workflow.modules.notifycrm.business;
 
+import fr.paris.lutece.plugins.crmclient.service.CRMClientService;
 import fr.paris.lutece.plugins.directory.business.Directory;
 import fr.paris.lutece.plugins.directory.business.DirectoryHome;
 import fr.paris.lutece.plugins.directory.business.Record;
@@ -43,7 +44,6 @@ import fr.paris.lutece.plugins.workflow.business.ResourceHistory;
 import fr.paris.lutece.plugins.workflow.business.ResourceHistoryHome;
 import fr.paris.lutece.plugins.workflow.business.task.Task;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.NotifyCRMService;
-import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.NotifyCRMWebService;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.TaskNotifyCRMConfigService;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
 import fr.paris.lutece.plugins.workflow.service.WorkflowPlugin;
@@ -91,13 +91,13 @@ public class TaskNotifyCRM extends Task
      */
     public void processTask( int nIdResourceHistory, HttpServletRequest request, Plugin plugin, Locale locale )
     {
-        NotifyCRMService notifyCRMService = NotifyCRMService.getService(  );
         ResourceHistory resourceHistory = ResourceHistoryHome.findByPrimaryKey( nIdResourceHistory, plugin );
         TaskNotifyCRMConfig config = TaskNotifyCRMConfigService.getService(  ).findByPrimaryKey( getId(  ) );
 
         if ( ( config != null ) && ( resourceHistory != null ) &&
                 Record.WORKFLOW_RESOURCE_TYPE.equals( resourceHistory.getResourceType(  ) ) )
         {
+            NotifyCRMService notifyCRMService = NotifyCRMService.getService(  );
             Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
 
             // Record
@@ -107,6 +107,7 @@ public class TaskNotifyCRM extends Task
             {
                 Directory directory = DirectoryHome.findByPrimaryKey( record.getDirectory(  ).getIdDirectory(  ),
                         pluginDirectory );
+                CRMClientService crmClientService = CRMClientService.getService(  );
 
                 if ( directory != null )
                 {
@@ -128,10 +129,10 @@ public class TaskNotifyCRM extends Task
                         String strMessage = template.getHtml(  );
                         String strSender = config.getSenderName(  );
 
-                        NotifyCRMWebService.getService(  ).notify( strIdDemand, strObject, strMessage, strSender );
+                        crmClientService.notify( strIdDemand, strObject, strMessage, strSender );
                     }
 
-                    NotifyCRMWebService.getService(  ).sendUpdateDemand( strIdDemand, strStatusText );
+                    crmClientService.sendUpdateDemand( strIdDemand, strStatusText );
                 }
             }
         }
@@ -144,9 +145,8 @@ public class TaskNotifyCRM extends Task
      */
     public String getDisplayConfigForm( HttpServletRequest request, Plugin plugin, Locale locale )
     {
-        NotifyCRMService notifyCRMService = NotifyCRMService.getService(  );
         TaskNotifyCRMConfigService configService = TaskNotifyCRMConfigService.getService(  );
-
+        NotifyCRMService notifyCRMService = NotifyCRMService.getService(  );
         String strDefaultSenderName = AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_DEFAULT_SENDER_NAME );
         Plugin pluginWorkflow = PluginService.getPlugin( WorkflowPlugin.PLUGIN_NAME );
 
@@ -245,11 +245,12 @@ public class TaskNotifyCRM extends Task
      */
     public String doSaveConfig( HttpServletRequest request, Locale locale, Plugin plugin )
     {
-        TaskNotifyCRMConfigService configService = TaskNotifyCRMConfigService.getService(  );
         String strError = checkNotifyCRMConfigParameter( request, locale );
 
         if ( StringUtils.isBlank( strError ) )
         {
+            TaskNotifyCRMConfigService configService = TaskNotifyCRMConfigService.getService(  );
+
             // Fetch parameters
             String strIdDirectory = request.getParameter( NotifyCRMConstants.PARAMETER_ID_DIRECTORY );
             String strPositionEntryDirectoryIdDemand = request.getParameter( NotifyCRMConstants.PARAMETER_POSITION_ENTRY_DIRECTORY_ID_DEMAND );
