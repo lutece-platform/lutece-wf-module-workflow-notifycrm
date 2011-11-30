@@ -376,7 +376,7 @@ public final class NotifyCRMService
 
         for ( RecordField recordField : listRecordField )
         {
-            String value = recordField.getEntry(  ).convertRecordFieldValueToString( recordField, locale, false, false );
+            String strNewValue = StringUtils.EMPTY;
 
             if ( isEntryTypeRefused( recordField.getEntry(  ).getEntryType(  ).getIdType(  ) ) )
             {
@@ -387,22 +387,40 @@ public final class NotifyCRMService
             {
                 continue;
             }
-            else if ( ( recordField.getField(  ) != null ) &&
+            else if ( ( recordField.getField(  ) != null ) && ( recordField.getField(  ).getTitle(  ) != null ) &&
                     !( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation ) )
             {
-                recordFieldFilter.setIdEntry( recordField.getEntry(  ).getIdEntry(  ) );
-                listRecordField = RecordFieldHome.getRecordFieldList( recordFieldFilter, pluginDirectory );
-
-                if ( ( listRecordField.get( 0 ) != null ) && ( listRecordField.get( 0 ).getField(  ) != null ) &&
-                        ( listRecordField.get( 0 ).getField(  ).getTitle(  ) != null ) )
-                {
-                    value = listRecordField.get( 0 ).getField(  ).getTitle(  );
-                }
+                strNewValue = recordField.getField(  ).getTitle(  );
+            }
+            else if ( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeFile &&
+                    ( recordField.getFile(  ) != null ) && ( recordField.getFile(  ).getTitle(  ) != null ) )
+            {
+                strNewValue = recordField.getFile(  ).getTitle(  );
+            }
+            else
+            {
+                strNewValue = recordField.getEntry(  ).convertRecordFieldValueToString( recordField, locale, false,
+                        false );
             }
 
             recordField.setEntry( EntryHome.findByPrimaryKey( recordField.getEntry(  ).getIdEntry(  ), pluginDirectory ) );
-            model.put( NotifyCRMConstants.MARK_POSITION + String.valueOf( recordField.getEntry(  ).getPosition(  ) ),
-                value );
+
+            String strKey = NotifyCRMConstants.MARK_POSITION + recordField.getEntry(  ).getPosition(  );
+            String strOldValue = ( (String) model.get( strKey ) );
+
+            if ( StringUtils.isNotBlank( strOldValue ) && StringUtils.isNotBlank( strNewValue ) )
+            {
+                // Add markers for message
+                model.put( strKey, strNewValue + NotifyCRMConstants.COMMA + strOldValue );
+            }
+            else if ( strNewValue != null )
+            {
+                model.put( strKey, strNewValue );
+            }
+            else
+            {
+                model.put( strKey, StringUtils.EMPTY );
+            }
         }
 
         if ( ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) &&
