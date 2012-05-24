@@ -31,23 +31,17 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.workflow.modules.notifycrm.business;
+package fr.paris.lutece.plugins.workflow.modules.notifycrm.web;
 
-import fr.paris.lutece.plugins.crmclient.service.CRMClientService;
-import fr.paris.lutece.plugins.directory.business.Directory;
-import fr.paris.lutece.plugins.directory.business.DirectoryHome;
-import fr.paris.lutece.plugins.directory.business.Record;
-import fr.paris.lutece.plugins.directory.business.RecordHome;
-import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
-import fr.paris.lutece.plugins.workflow.business.ResourceHistory;
-import fr.paris.lutece.plugins.workflow.business.ResourceHistoryHome;
-import fr.paris.lutece.plugins.workflow.business.task.Task;
-import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.NotifyCRMService;
-import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.TaskNotifyCRMConfigService;
+import fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig;
+import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.INotifyCRMService;
+import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.ITaskNotifyCRMConfigService;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
 import fr.paris.lutece.plugins.workflow.service.WorkflowPlugin;
-import fr.paris.lutece.plugins.workflow.service.security.WorkflowUserAttributesManager;
+import fr.paris.lutece.plugins.workflow.service.security.IWorkflowUserAttributesManager;
+import fr.paris.lutece.plugins.workflow.web.task.NoFormTaskComponent;
+import fr.paris.lutece.plugins.workflowcore.service.task.ITask;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
@@ -56,7 +50,6 @@ import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
-import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.html.HtmlTemplate;
 
 import org.apache.commons.lang.StringUtils;
@@ -65,192 +58,36 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import javax.servlet.http.HttpServletRequest;
 
 
 /**
  *
- * TaskNotifyCRM
+ * NotifyCRMTaskComponent
  *
  */
-public class TaskNotifyCRM extends Task
+public class NotifyCRMTaskComponent extends NoFormTaskComponent
 {
-    // TEMPLATES
     private static final String TEMPLATE_TASK_NOTIFY_CRM_CONFIG = "admin/plugins/workflow/modules/notifycrm/task_notify_crm_config.html";
-    private static final String TEMPLATE_TASK_NOTIFY_CRM_NOTIFICATION = "admin/plugins/workflow/modules/notifycrm/task_notify_crm_notification.html";
+    @Inject
+    private ITaskNotifyCRMConfigService _taskNotifyCRMConfigService;
+    @Inject
+    private INotifyCRMService _notifyCRMService;
+    @Inject
+    private IWorkflowUserAttributesManager _userAttributesManager;
 
     /**
      * {@inheritDoc}
      */
-    public void init(  )
-    {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void processTask( int nIdResourceHistory, HttpServletRequest request, Plugin plugin, Locale locale )
-    {
-        ResourceHistory resourceHistory = ResourceHistoryHome.findByPrimaryKey( nIdResourceHistory, plugin );
-        TaskNotifyCRMConfig config = TaskNotifyCRMConfigService.getService(  ).findByPrimaryKey( getId(  ) );
-
-        if ( ( config != null ) && ( resourceHistory != null ) &&
-                Record.WORKFLOW_RESOURCE_TYPE.equals( resourceHistory.getResourceType(  ) ) )
-        {
-            NotifyCRMService notifyCRMService = NotifyCRMService.getService(  );
-            Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
-
-            // Record
-            Record record = RecordHome.findByPrimaryKey( resourceHistory.getIdResource(  ), pluginDirectory );
-
-            if ( record != null )
-            {
-                Directory directory = DirectoryHome.findByPrimaryKey( record.getDirectory(  ).getIdDirectory(  ),
-                        pluginDirectory );
-                CRMClientService crmClientService = CRMClientService.getService(  );
-
-                if ( directory != null )
-                {
-                    record.setDirectory( directory );
-
-                    String strIdDemand = notifyCRMService.getIdDemand( config, record.getIdRecord(  ),
-                            directory.getIdDirectory(  ) );
-                    String strStatusText = config.getStatusText(  );
-
-                    if ( config.getSendNotification(  ) )
-                    {
-                        Map<String, Object> model = notifyCRMService.fillModel( config, record, directory, request,
-                                getAction(  ).getId(  ), nIdResourceHistory );
-                        HtmlTemplate template = AppTemplateService.getTemplateFromStringFtl( AppTemplateService.getTemplate( 
-                                    TEMPLATE_TASK_NOTIFY_CRM_NOTIFICATION, locale, model ).getHtml(  ), locale, model );
-
-                        String strObject = AppTemplateService.getTemplateFromStringFtl( config.getSubject(  ), locale,
-                                model ).getHtml(  );
-                        String strMessage = template.getHtml(  );
-                        String strSender = config.getSenderName(  );
-
-                        crmClientService.notify( strIdDemand, strObject, strMessage, strSender );
-                    }
-
-                    crmClientService.sendUpdateDemand( strIdDemand, strStatusText );
-                }
-            }
-        }
-    }
-
-    // GET
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getDisplayConfigForm( HttpServletRequest request, Plugin plugin, Locale locale )
-    {
-        TaskNotifyCRMConfigService configService = TaskNotifyCRMConfigService.getService(  );
-        NotifyCRMService notifyCRMService = NotifyCRMService.getService(  );
-        String strDefaultSenderName = AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_DEFAULT_SENDER_NAME );
-        Plugin pluginWorkflow = PluginService.getPlugin( WorkflowPlugin.PLUGIN_NAME );
-
-        Map<String, Object> model = new HashMap<String, Object>(  );
-
-        model.put( NotifyCRMConstants.MARK_CONFIG, configService.findByPrimaryKey( getId(  ) ) );
-        model.put( NotifyCRMConstants.MARK_DEFAULT_SENDER_NAME, strDefaultSenderName );
-        model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_ID_DEMAND,
-            notifyCRMService.getListEntriesIdDemand( getId(  ), locale ) );
-        model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_USER_GUID,
-            notifyCRMService.getListEntriesUserGuid( getId(  ), locale ) );
-        model.put( NotifyCRMConstants.MARK_LIST_DIRECTORIES, notifyCRMService.getListDirectories(  ) );
-        model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_FREEMARKER,
-            notifyCRMService.getListEntriesFreemarker( getId(  ) ) );
-        model.put( NotifyCRMConstants.MARK_WEBAPP_URL, AppPathService.getBaseUrl( request ) );
-        model.put( NotifyCRMConstants.MARK_LOCALE, request.getLocale(  ) );
-        model.put( NotifyCRMConstants.MARK_IS_USER_ATTRIBUTE_WS_ACTIVE,
-            WorkflowUserAttributesManager.getManager(  ).isEnabled(  ) );
-        model.put( NotifyCRMConstants.MARK_PLUGIN_WORKFLOW, pluginWorkflow );
-        model.put( NotifyCRMConstants.MARK_LOCALE, locale );
-        model.put( NotifyCRMConstants.MARK_TASKS_LIST, notifyCRMService.getListTasks( getAction(  ).getId(  ), locale ) );
-
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_TASK_NOTIFY_CRM_CONFIG, locale, model );
-
-        return template.getHtml(  );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getDisplayTaskForm( int nIdResource, String strResourceType, HttpServletRequest request,
-        Plugin plugin, Locale locale )
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getDisplayTaskInformation( int nIdHistory, HttpServletRequest request, Plugin plugin, Locale locale )
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public ReferenceList getTaskFormEntries( Plugin plugin, Locale locale )
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getTaskInformationXml( int nIdHistory, HttpServletRequest request, Plugin plugin, Locale locale )
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getTitle( Plugin plugin, Locale locale )
-    {
-        String strTitle = StringUtils.EMPTY;
-        TaskNotifyCRMConfig config = TaskNotifyCRMConfigService.getService(  ).findByPrimaryKey( getId(  ) );
-
-        if ( config != null )
-        {
-            strTitle = config.getSubject(  );
-        }
-
-        return StringUtils.isNotBlank( strTitle ) ? strTitle : StringUtils.EMPTY;
-    }
-
-    // DO
-
-    /**
-     * {@inheritDoc}
-     */
-    public void doRemoveConfig( Plugin plugin )
-    {
-        TaskNotifyCRMConfigService.getService(  ).remove( getId(  ) );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void doRemoveTaskInformation( int nIdHistory, Plugin plugin )
-    {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String doSaveConfig( HttpServletRequest request, Locale locale, Plugin plugin )
+    @Override
+    public String doSaveConfig( HttpServletRequest request, Locale locale, ITask task )
     {
         String strError = checkNotifyCRMConfigParameter( request, locale );
 
         if ( StringUtils.isBlank( strError ) )
         {
-            TaskNotifyCRMConfigService configService = TaskNotifyCRMConfigService.getService(  );
-
             // Fetch parameters
             String strIdDirectory = request.getParameter( NotifyCRMConstants.PARAMETER_ID_DIRECTORY );
             String strPositionEntryDirectoryIdDemand = request.getParameter( NotifyCRMConstants.PARAMETER_POSITION_ENTRY_DIRECTORY_ID_DEMAND );
@@ -278,12 +115,12 @@ public class TaskNotifyCRM extends Task
 
             // In case there are no errors, then the config is created/updated
             boolean bCreate = false;
-            TaskNotifyCRMConfig config = configService.findByPrimaryKey( getId(  ) );
+            TaskNotifyCRMConfig config = _taskNotifyCRMConfigService.findByPrimaryKey( task.getId(  ) );
 
             if ( config == null )
             {
                 config = new TaskNotifyCRMConfig(  );
-                config.setIdTask( getId(  ) );
+                config.setIdTask( task.getId(  ) );
                 bCreate = true;
             }
 
@@ -309,11 +146,11 @@ public class TaskNotifyCRM extends Task
 
             if ( bCreate )
             {
-                configService.create( config );
+                _taskNotifyCRMConfigService.create( config );
             }
             else
             {
-                configService.update( config );
+                _taskNotifyCRMConfigService.update( config );
             }
         }
 
@@ -323,44 +160,62 @@ public class TaskNotifyCRM extends Task
     /**
      * {@inheritDoc}
      */
-    public String doValidateTask( int nIdResource, String strResourceType, HttpServletRequest request, Locale locale,
-        Plugin plugin )
+    @Override
+    public String getDisplayConfigForm( HttpServletRequest request, Locale locale, ITask task )
     {
+        String strDefaultSenderName = AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_DEFAULT_SENDER_NAME );
+        Plugin pluginWorkflow = PluginService.getPlugin( WorkflowPlugin.PLUGIN_NAME );
+
+        Map<String, Object> model = new HashMap<String, Object>(  );
+
+        model.put( NotifyCRMConstants.MARK_CONFIG, _taskNotifyCRMConfigService.findByPrimaryKey( task.getId(  ) ) );
+        model.put( NotifyCRMConstants.MARK_DEFAULT_SENDER_NAME, strDefaultSenderName );
+        model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_ID_DEMAND,
+            _notifyCRMService.getListEntriesIdDemand( task.getId(  ), locale ) );
+        model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_USER_GUID,
+            _notifyCRMService.getListEntriesUserGuid( task.getId(  ), locale ) );
+        model.put( NotifyCRMConstants.MARK_LIST_DIRECTORIES, _notifyCRMService.getListDirectories(  ) );
+        model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_FREEMARKER,
+            _notifyCRMService.getListEntriesFreemarker( task.getId(  ) ) );
+        model.put( NotifyCRMConstants.MARK_WEBAPP_URL, AppPathService.getBaseUrl( request ) );
+        model.put( NotifyCRMConstants.MARK_LOCALE, request.getLocale(  ) );
+        model.put( NotifyCRMConstants.MARK_IS_USER_ATTRIBUTE_WS_ACTIVE, _userAttributesManager.isEnabled(  ) );
+        model.put( NotifyCRMConstants.MARK_PLUGIN_WORKFLOW, pluginWorkflow );
+        model.put( NotifyCRMConstants.MARK_LOCALE, locale );
+        model.put( NotifyCRMConstants.MARK_TASKS_LIST,
+            _notifyCRMService.getListTasks( task.getAction(  ).getId(  ), locale ) );
+
+        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_TASK_NOTIFY_CRM_CONFIG, locale, model );
+
+        return template.getHtml(  );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDisplayTaskInformation( int nIdHistory, HttpServletRequest request, Locale locale, ITask task )
+    {
+        // TODO Auto-generated method stub
         return null;
     }
 
-    // CHECK
-
     /**
      * {@inheritDoc}
      */
-    public boolean isConfigRequire(  )
+    @Override
+    public String getTaskInformationXml( int nIdHistory, HttpServletRequest request, Locale locale, ITask task )
     {
-        return true;
+        // TODO Auto-generated method stub
+        return null;
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public boolean isFormTaskRequire(  )
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isTaskForActionAutomatic(  )
-    {
-        return true;
-    }
-
-    /**
-     * Check if the config is well configured
-     * @param request the HTTP request
-     * @param locale the Locale
-     * @return null if it is well configured, the label of the field that is not well configured otherwise
-     */
+    * Check if the config is well configured
+    * @param request the HTTP request
+    * @param locale the Locale
+    * @return null if it is well configured, the label of the field that is not well configured otherwise
+    */
     private String checkNotifyCRMConfigParameter( HttpServletRequest request, Locale locale )
     {
         String strError = null;

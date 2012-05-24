@@ -33,79 +33,51 @@
  */
 package fr.paris.lutece.plugins.workflow.modules.notifycrm.service;
 
-import fr.paris.lutece.plugins.workflow.modules.notifycrm.business.ITaskNotifyCRMConfigDAO;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig;
-import fr.paris.lutece.portal.service.plugin.PluginService;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 
 /**
  *
- * TaskNotifyCRMConfigService
+ * ITaskNotifyCRMConfigService
  *
  */
-public class TaskNotifyCRMConfigService implements ITaskNotifyCRMConfigService
+public interface ITaskNotifyCRMConfigService
 {
-    public static final String BEAN_SERVICE = "workflow-notifycrm.taskNotifyCRMConfigService";
-    @Inject
-    private ITaskNotifyCRMConfigDAO _taskNotifyCRMConfigDAO;
-
     /**
-     * {@inheritDoc}
-     */
-    @Override
+    * Create a new config
+    * @param config the config
+    */
     @Transactional( "workflow-notifycrm.transactionManager" )
-    public void create( TaskNotifyCRMConfig config )
-    {
-        if ( config != null )
-        {
-            _taskNotifyCRMConfigDAO.insert( config, PluginService.getPlugin( NotifyCRMPlugin.PLUGIN_NAME ) );
-        }
-    }
+    void create( TaskNotifyCRMConfig config );
 
     /**
-     * {@inheritDoc}
+     * Update a config
+     * @param config the config
      */
-    @Override
     @Transactional( "workflow-notifycrm.transactionManager" )
-    public void update( TaskNotifyCRMConfig config )
-    {
-        if ( config != null )
-        {
-            _taskNotifyCRMConfigDAO.store( config, PluginService.getPlugin( NotifyCRMPlugin.PLUGIN_NAME ) );
-        }
-    }
+    void update( TaskNotifyCRMConfig config );
 
     /**
-     * {@inheritDoc}
+     * Remove a config
+     * @param nIdTask the task id
      */
-    @Override
     @Transactional( "workflow-notifycrm.transactionManager" )
-    public void remove( int nIdTask )
-    {
-        _taskNotifyCRMConfigDAO.delete( nIdTask, PluginService.getPlugin( NotifyCRMPlugin.PLUGIN_NAME ) );
-    }
+    void remove( int nIdTask );
 
     /**
-     * {@inheritDoc}
+     * Find a config
+     * @param nIdTask the id task
+     * @return an instance of {@link TaskNotifyCRMConfig}
      */
-    @Override
-    public TaskNotifyCRMConfig findByPrimaryKey( int nIdTask )
-    {
-        return _taskNotifyCRMConfigDAO.load( nIdTask, PluginService.getPlugin( NotifyCRMPlugin.PLUGIN_NAME ) );
-    }
+    TaskNotifyCRMConfig findByPrimaryKey( int nIdTask );
 
     /**
-     * {@inheritDoc}
+     * Get all configs
+     * @return a list of {@link TaskNotifyCRMConfig}
      */
-    @Override
-    public List<TaskNotifyCRMConfig> findAll(  )
-    {
-        return _taskNotifyCRMConfigDAO.loadAll( PluginService.getPlugin( NotifyCRMPlugin.PLUGIN_NAME ) );
-    }
+    List<TaskNotifyCRMConfig> findAll(  );
 }

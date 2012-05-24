@@ -60,6 +60,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
     /**
      * {@inheritDoc}
      */
+    @Override
     public synchronized void insert( TaskNotifyCRMConfig config, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
@@ -83,6 +84,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
     /**
      * {@inheritDoc}
      */
+    @Override
     public void store( TaskNotifyCRMConfig config, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
@@ -106,6 +108,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
     /**
      * {@inheritDoc}
      */
+    @Override
     public TaskNotifyCRMConfig load( int nIdTask, Plugin plugin )
     {
         TaskNotifyCRMConfig config = null;
@@ -139,6 +142,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
     /**
      * {@inheritDoc}
      */
+    @Override
     public void delete( int nIdTask, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );

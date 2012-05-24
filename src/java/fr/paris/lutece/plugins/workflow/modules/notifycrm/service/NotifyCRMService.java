@@ -45,20 +45,18 @@ import fr.paris.lutece.plugins.directory.business.RecordFieldFilter;
 import fr.paris.lutece.plugins.directory.business.RecordFieldHome;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
-import fr.paris.lutece.plugins.workflow.business.task.ITask;
-import fr.paris.lutece.plugins.workflow.business.task.TaskHome;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
-import fr.paris.lutece.plugins.workflow.service.WorkflowPlugin;
-import fr.paris.lutece.plugins.workflow.service.security.WorkflowUserAttributesManager;
+import fr.paris.lutece.plugins.workflow.service.security.IWorkflowUserAttributesManager;
 import fr.paris.lutece.plugins.workflow.service.taskinfo.ITaskInfoProvider;
 import fr.paris.lutece.plugins.workflow.service.taskinfo.TaskInfoManager;
-import fr.paris.lutece.portal.business.workflow.State;
+import fr.paris.lutece.plugins.workflowcore.business.state.State;
+import fr.paris.lutece.plugins.workflowcore.service.task.ITask;
+import fr.paris.lutece.plugins.workflowcore.service.task.ITaskService;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
 import fr.paris.lutece.util.ReferenceList;
@@ -71,6 +69,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -79,12 +79,18 @@ import javax.servlet.http.HttpServletRequest;
  * NotifyCRMService
  *
  */
-public final class NotifyCRMService
+public final class NotifyCRMService implements INotifyCRMService
 {
-    private static final String BEAN_NOTIFY_CRM_SERVICE = "workflow-notifycrm.notifyCRMService";
+    public static final String BEAN_SERVICE = "workflow-notifycrm.notifyCRMService";
     private List<Integer> _listAcceptedEntryTypesIdDemand;
     private List<Integer> _listRefusedEntryTypes;
     private List<Integer> _listAcceptedEntryTypesUserGuid;
+    @Inject
+    private ITaskNotifyCRMConfigService _taskNotifyCRMConfigService;
+    @Inject
+    private IWorkflowUserAttributesManager _userAttributesManager;
+    @Inject
+    private ITaskService _taskService;
 
     /**
      * Private constructor
@@ -101,23 +107,12 @@ public final class NotifyCRMService
         _listAcceptedEntryTypesUserGuid = fillListEntryTypes( NotifyCRMConstants.PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_USER_GUID );
     }
 
-    /**
-     * Get the instance of the service
-     * @return the instance of the service
-     */
-    public static NotifyCRMService getService(  )
-    {
-        return (NotifyCRMService) SpringContextService.getPluginBean( NotifyCRMPlugin.PLUGIN_NAME,
-            BEAN_NOTIFY_CRM_SERVICE );
-    }
-
     // CHECKS
 
     /**
-     * Check if the given entry type id is refused
-     * @param nIdEntryType the id entry type
-     * @return true if it is refused, false otherwise
+     * {@inheritDoc}
      */
+    @Override
     public boolean isEntryTypeRefused( int nIdEntryType )
     {
         boolean bIsRefused = true;
@@ -131,10 +126,9 @@ public final class NotifyCRMService
     }
 
     /**
-     * Check if the given entry type id is accepted for the id demand
-     * @param nIdEntryType the id entry type
-     * @return true if it is accepted, false otherwise
+     * {@inheritDoc}
      */
+    @Override
     public boolean isEntryTypeIdDemandAccepted( int nIdEntryType )
     {
         boolean bIsAccepted = false;
@@ -148,10 +142,9 @@ public final class NotifyCRMService
     }
 
     /**
-     * Check if the given entry type id is accepted for the user guid
-     * @param nIdEntryType the id entry type
-     * @return true if it is accepted, false otherwise
+     * {@inheritDoc}
      */
+    @Override
     public boolean isEntryTypeUserGuidAccepted( int nIdEntryType )
     {
         boolean bIsAccepted = false;
@@ -167,9 +160,9 @@ public final class NotifyCRMService
     // GETS
 
     /**
-     * Get the list of directorise
-     * @return a ReferenceList
+     * {@inheritDoc}
      */
+    @Override
     public ReferenceList getListDirectories(  )
     {
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
@@ -186,15 +179,14 @@ public final class NotifyCRMService
     }
 
     /**
-     * Get the list of entries from a given id task
-     * @param nIdTask the id task
-     * @return a list of IEntry
+     * {@inheritDoc}
      */
+    @Override
     public List<IEntry> getListEntries( int nIdTask )
     {
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
 
-        TaskNotifyCRMConfig config = TaskNotifyCRMConfigService.getService(  ).findByPrimaryKey( nIdTask );
+        TaskNotifyCRMConfig config = _taskNotifyCRMConfigService.findByPrimaryKey( nIdTask );
 
         List<IEntry> listEntries = new ArrayList<IEntry>(  );
 
@@ -210,11 +202,9 @@ public final class NotifyCRMService
     }
 
     /**
-     * Get the list of entries that have the accepted type (which are defined in <b>workflow-notifycrm.properties</b>)
-     * @param nIdTask the id task
-     * @param locale the Locale
-     * @return a ReferenceList
+     * {@inheritDoc}
      */
+    @Override
     public ReferenceList getListEntriesIdDemand( int nIdTask, Locale locale )
     {
         ReferenceList refenreceListEntries = new ReferenceList(  );
@@ -234,11 +224,9 @@ public final class NotifyCRMService
     }
 
     /**
-     * Get the list of entries that have the accepted type (which are defined in <b>workflow-notifycrm.properties</b>)
-     * @param nIdTask the id task
-     * @param locale the Locale
-     * @return a ReferenceList
+     * {@inheritDoc}
      */
+    @Override
     public ReferenceList getListEntriesUserGuid( int nIdTask, Locale locale )
     {
         ReferenceList refenreceListEntries = new ReferenceList(  );
@@ -258,12 +246,9 @@ public final class NotifyCRMService
     }
 
     /**
-     * Get the list of entries that have not the refused type (which are defined in the <b>workflow-notifycrm.properties</b>).
-     * <br />
-     * This list will be displayed as a freemarker label that the webmaster can use to write the notifications.
-     * @param nIdTask the id task
-     * @return a list of {@link IEntry}
+     * {@inheritDoc}
      */
+    @Override
     public List<IEntry> getListEntriesFreemarker( int nIdTask )
     {
         List<IEntry> listEntries = new ArrayList<IEntry>(  );
@@ -282,12 +267,9 @@ public final class NotifyCRMService
     }
 
     /**
-     * Get the id demand
-     * @param config the config
-     * @param nIdRecord the id record
-     * @param nIdDirectory the id directory
-     * @return the id demand
+     * {@inheritDoc}
      */
+    @Override
     public String getIdDemand( TaskNotifyCRMConfig config, int nIdRecord, int nIdDirectory )
     {
         String strIdDemand = StringUtils.EMPTY;
@@ -301,12 +283,9 @@ public final class NotifyCRMService
     }
 
     /**
-     * Get the user guid
-     * @param config the config
-     * @param nIdRecord the id record
-     * @param nIdDirectory the id directory
-     * @return the user guid, an empty string if the position is not set
+     * {@inheritDoc}
      */
+    @Override
     public String getUserGuid( TaskNotifyCRMConfig config, int nIdRecord, int nIdDirectory )
     {
         String strUserGuid = StringUtils.EMPTY;
@@ -320,19 +299,16 @@ public final class NotifyCRMService
     }
 
     /**
-     * Get the list of tasks
-     * @param nIdAction the id action
-     * @param locale the locale
-     * @return a list of {@link ITask}
+     * {@inheritDoc}
      */
+    @Override
     public List<ITask> getListTasks( int nIdAction, Locale locale )
     {
         List<ITask> listTasks = new ArrayList<ITask>(  );
-        Plugin pluginWorkflow = PluginService.getPlugin( WorkflowPlugin.PLUGIN_NAME );
 
-        for ( ITask task : TaskHome.getListTaskByIdAction( nIdAction, pluginWorkflow, locale ) )
+        for ( ITask task : _taskService.getListTaskByIdAction( nIdAction, locale ) )
         {
-            for ( ITaskInfoProvider provider : TaskInfoManager.getManager(  ).getProvidersList(  ) )
+            for ( ITaskInfoProvider provider : TaskInfoManager.getProvidersList(  ) )
             {
                 if ( task.getTaskType(  ).getKey(  ).equals( provider.getTaskType(  ).getKey(  ) ) )
                 {
@@ -349,15 +325,9 @@ public final class NotifyCRMService
     // OTHERS
 
     /**
-     * Fill the model for the notification message
-     * @param config the config
-     * @param record the record
-     * @param directory the directory
-     * @param request the HTTP request
-     * @param nIdAction the id action
-     * @param nIdHistory the id history
-     * @return the model filled
+     * {@inheritDoc}
      */
+    @Override
     public Map<String, Object> fillModel( TaskNotifyCRMConfig config, Record record, Directory directory,
         HttpServletRequest request, int nIdAction, int nIdHistory )
     {
@@ -428,7 +398,7 @@ public final class NotifyCRMService
         {
             State state = WorkflowService.getInstance(  )
                                          .getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
-                    directory.getIdWorkflow(  ), null, null );
+                    directory.getIdWorkflow(  ), null );
             model.put( NotifyCRMConstants.MARK_STATUS, state.getName(  ) );
         }
 
@@ -440,7 +410,7 @@ public final class NotifyCRMService
         for ( ITask task : getListTasks( nIdAction, locale ) )
         {
             model.put( NotifyCRMConstants.MARK_TASK + task.getId(  ),
-                TaskInfoManager.getManager(  ).getTaskResourceInfo( nIdHistory, task.getId(  ), request ) );
+                TaskInfoManager.getTaskResourceInfo( nIdHistory, task.getId(  ), request ) );
         }
 
         return model;
@@ -521,10 +491,9 @@ public final class NotifyCRMService
      */
     private void fillModelWithUserAttributes( Map<String, Object> model, String strUserGuid )
     {
-        if ( WorkflowUserAttributesManager.getManager(  ).isEnabled(  ) && StringUtils.isNotBlank( strUserGuid ) )
+        if ( _userAttributesManager.isEnabled(  ) && StringUtils.isNotBlank( strUserGuid ) )
         {
-            Map<String, String> mapUserAttributes = WorkflowUserAttributesManager.getManager(  )
-                                                                                 .getAttributes( strUserGuid );
+            Map<String, String> mapUserAttributes = _userAttributesManager.getAttributes( strUserGuid );
             String strFirstName = mapUserAttributes.get( LuteceUser.NAME_GIVEN );
             String strLastName = mapUserAttributes.get( LuteceUser.NAME_FAMILY );
             String strEmail = mapUserAttributes.get( LuteceUser.BUSINESS_INFO_ONLINE_EMAIL );
