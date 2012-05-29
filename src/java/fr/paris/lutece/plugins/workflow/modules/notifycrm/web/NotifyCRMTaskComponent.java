@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.workflow.modules.notifycrm.web;
 
-import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.INotifyCRMService;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.ITaskNotifyCRMConfigService;
@@ -42,25 +41,33 @@ import fr.paris.lutece.plugins.workflow.service.WorkflowPlugin;
 import fr.paris.lutece.plugins.workflow.service.security.IWorkflowUserAttributesManager;
 import fr.paris.lutece.plugins.workflow.web.task.NoFormTaskComponent;
 import fr.paris.lutece.plugins.workflowcore.service.task.ITask;
-import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import fr.paris.lutece.portal.web.constants.Messages;
+import fr.paris.lutece.util.beanvalidation.BeanValidationUtil;
 import fr.paris.lutece.util.html.HtmlTemplate;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
+
+import java.lang.reflect.InvocationTargetException;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
+
+import javax.validation.ConstraintViolation;
 
 
 /**
@@ -84,77 +91,54 @@ public class NotifyCRMTaskComponent extends NoFormTaskComponent
     @Override
     public String doSaveConfig( HttpServletRequest request, Locale locale, ITask task )
     {
-        String strError = checkNotifyCRMConfigParameter( request, locale );
+        // In case there are no errors, then the config is created/updated
+        boolean bCreate = false;
+        TaskNotifyCRMConfig config = _taskNotifyCRMConfigService.findByPrimaryKey( task.getId(  ) );
 
-        if ( StringUtils.isBlank( strError ) )
+        if ( config == null )
         {
-            // Fetch parameters
-            String strIdDirectory = request.getParameter( NotifyCRMConstants.PARAMETER_ID_DIRECTORY );
-            String strPositionEntryDirectoryIdDemand = request.getParameter( NotifyCRMConstants.PARAMETER_POSITION_ENTRY_DIRECTORY_ID_DEMAND );
-            String strPositionEntryDirectoryUserGuid = request.getParameter( NotifyCRMConstants.PARAMETER_POSITION_ENTRY_DIRECTORY_USER_GUID );
-            String strSendNotification = request.getParameter( NotifyCRMConstants.PARAMETER_SEND_NOTIFICATION );
-            String strSenderName = request.getParameter( NotifyCRMConstants.PARAMETER_SENDER_NAME );
-            String strSubject = request.getParameter( NotifyCRMConstants.PARAMETER_SUBJECT );
-            String strMessage = request.getParameter( NotifyCRMConstants.PARAMETER_MESSAGE );
-            String strStatusText = request.getParameter( NotifyCRMConstants.PARAMETER_STATUS_TEXT );
+            config = new TaskNotifyCRMConfig(  );
+            config.setIdTask( task.getId(  ) );
+            bCreate = true;
+        }
 
-            int nIdDirectory = DirectoryUtils.CONSTANT_ID_NULL;
-            int nPositionEntryDirectoryIdDemand = DirectoryUtils.CONSTANT_ID_NULL;
-            boolean bSendNotification = StringUtils.isNotBlank( strSendNotification );
+        try
+        {
+            BeanUtils.populate( config, request.getParameterMap(  ) );
+        }
+        catch ( IllegalAccessException e )
+        {
+            AppLogService.error( "NotifyCRMTaskComponent - Unable to fetch data from request", e );
+        }
+        catch ( InvocationTargetException e )
+        {
+            AppLogService.error( "NotifyCRMTaskComponent - Unable to fetch data from request", e );
+        }
 
-            if ( StringUtils.isNotBlank( strIdDirectory ) && StringUtils.isNumeric( strIdDirectory ) )
+        String strApply = request.getParameter( NotifyCRMConstants.PARAMETER_APPLY );
+
+        // Check if the AdminUser clicked on "Apply" or on "Save"
+        if ( StringUtils.isEmpty( strApply ) )
+        {
+            // Check mandatory fields
+            Set<ConstraintViolation<TaskNotifyCRMConfig>> constraintViolations = BeanValidationUtil.validate( config );
+
+            if ( constraintViolations.size(  ) > 0 )
             {
-                nIdDirectory = Integer.parseInt( strIdDirectory );
-            }
-
-            if ( StringUtils.isNotBlank( strPositionEntryDirectoryIdDemand ) &&
-                    StringUtils.isNumeric( strPositionEntryDirectoryIdDemand ) )
-            {
-                nPositionEntryDirectoryIdDemand = Integer.parseInt( strPositionEntryDirectoryIdDemand );
-            }
-
-            // In case there are no errors, then the config is created/updated
-            boolean bCreate = false;
-            TaskNotifyCRMConfig config = _taskNotifyCRMConfigService.findByPrimaryKey( task.getId(  ) );
-
-            if ( config == null )
-            {
-                config = new TaskNotifyCRMConfig(  );
-                config.setIdTask( task.getId(  ) );
-                bCreate = true;
-            }
-
-            config.setIdDirectory( nIdDirectory );
-            config.setPositionEntryDirectoryIdDemand( nPositionEntryDirectoryIdDemand );
-
-            if ( StringUtils.isNotBlank( strPositionEntryDirectoryUserGuid ) &&
-                    StringUtils.isNumeric( strPositionEntryDirectoryUserGuid ) )
-            {
-                int nPositionEntryDirectoryUserGuid = Integer.parseInt( strPositionEntryDirectoryUserGuid );
-                config.setPositionEntryDirectoryUserGuid( nPositionEntryDirectoryUserGuid );
-            }
-            else
-            {
-                config.setPositionEntryDirectoryUserGuid( DirectoryUtils.CONSTANT_ID_NULL );
-            }
-
-            config.setSendNotification( bSendNotification );
-            config.setMessage( StringUtils.isNotBlank( strMessage ) ? strMessage : StringUtils.EMPTY );
-            config.setSenderName( StringUtils.isNotBlank( strSenderName ) ? strSenderName : StringUtils.EMPTY );
-            config.setSubject( StringUtils.isNotBlank( strSubject ) ? strSubject : StringUtils.EMPTY );
-            config.setStatusText( StringUtils.isNotBlank( strStatusText ) ? strStatusText : StringUtils.EMPTY );
-
-            if ( bCreate )
-            {
-                _taskNotifyCRMConfigService.create( config );
-            }
-            else
-            {
-                _taskNotifyCRMConfigService.update( config );
+                return AdminMessageService.getMessageUrl( request, Messages.MANDATORY_FIELDS, AdminMessage.TYPE_STOP );
             }
         }
 
-        return strError;
+        if ( bCreate )
+        {
+            _taskNotifyCRMConfigService.create( config );
+        }
+        else
+        {
+            _taskNotifyCRMConfigService.update( config );
+        }
+
+        return null;
     }
 
     /**
@@ -184,6 +168,8 @@ public class NotifyCRMTaskComponent extends NoFormTaskComponent
         model.put( NotifyCRMConstants.MARK_LOCALE, locale );
         model.put( NotifyCRMConstants.MARK_TASKS_LIST,
             _notifyCRMService.getListTasks( task.getAction(  ).getId(  ), locale ) );
+        model.put( NotifyCRMConstants.MARK_DEFAULT_CRM_WEBAPP_BASE_URL,
+            AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_CRMCLIENT_REST_WEBAPP_URL ) );
 
         HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_TASK_NOTIFY_CRM_CONFIG, locale, model );
 
@@ -196,7 +182,6 @@ public class NotifyCRMTaskComponent extends NoFormTaskComponent
     @Override
     public String getDisplayTaskInformation( int nIdHistory, HttpServletRequest request, Locale locale, ITask task )
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -206,87 +191,6 @@ public class NotifyCRMTaskComponent extends NoFormTaskComponent
     @Override
     public String getTaskInformationXml( int nIdHistory, HttpServletRequest request, Locale locale, ITask task )
     {
-        // TODO Auto-generated method stub
         return null;
-    }
-
-    /**
-    * Check if the config is well configured
-    * @param request the HTTP request
-    * @param locale the Locale
-    * @return null if it is well configured, the label of the field that is not well configured otherwise
-    */
-    private String checkNotifyCRMConfigParameter( HttpServletRequest request, Locale locale )
-    {
-        String strError = null;
-
-        // Fetch parameters
-        String strIdDirectory = request.getParameter( NotifyCRMConstants.PARAMETER_ID_DIRECTORY );
-        String strPositionEntryDirectoryIdDemand = request.getParameter( NotifyCRMConstants.PARAMETER_POSITION_ENTRY_DIRECTORY_ID_DEMAND );
-        String strSendNotification = request.getParameter( NotifyCRMConstants.PARAMETER_SEND_NOTIFICATION );
-        String strSenderName = request.getParameter( NotifyCRMConstants.PARAMETER_SENDER_NAME );
-        String strSubject = request.getParameter( NotifyCRMConstants.PARAMETER_SUBJECT );
-        String strMessage = request.getParameter( NotifyCRMConstants.PARAMETER_MESSAGE );
-        String strApply = request.getParameter( NotifyCRMConstants.PARAMETER_APPLY );
-        String strStatusText = request.getParameter( NotifyCRMConstants.PARAMETER_STATUS_TEXT );
-
-        int nIdDirectory = DirectoryUtils.CONSTANT_ID_NULL;
-        int nPositionEntryDirectoryIdDemand = DirectoryUtils.CONSTANT_ID_NULL;
-        boolean bSendNotification = StringUtils.isNotBlank( strSendNotification );
-
-        if ( StringUtils.isNotBlank( strIdDirectory ) && StringUtils.isNumeric( strIdDirectory ) )
-        {
-            nIdDirectory = Integer.parseInt( strIdDirectory );
-        }
-
-        if ( StringUtils.isNotBlank( strPositionEntryDirectoryIdDemand ) &&
-                StringUtils.isNumeric( strPositionEntryDirectoryIdDemand ) )
-        {
-            nPositionEntryDirectoryIdDemand = Integer.parseInt( strPositionEntryDirectoryIdDemand );
-        }
-
-        // Check if the AdminUser clicked on "Apply" or on "Save"
-        if ( StringUtils.isEmpty( strApply ) )
-        {
-            // Check the required fields
-            String strRequiredField = StringUtils.EMPTY;
-
-            if ( nIdDirectory == DirectoryUtils.CONSTANT_ID_NULL )
-            {
-                strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_DIRECTORY;
-            }
-            else if ( nPositionEntryDirectoryIdDemand == DirectoryUtils.CONSTANT_ID_NULL )
-            {
-                strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_POSITION_ENTRY_DIRECTORY_ID_DEMAND;
-            }
-            else if ( StringUtils.isBlank( strStatusText ) )
-            {
-                strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_STATUS_TEXT;
-            }
-            else if ( bSendNotification )
-            {
-                if ( StringUtils.isBlank( strSenderName ) )
-                {
-                    strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_SENDER_NAME;
-                }
-                else if ( StringUtils.isBlank( strSubject ) )
-                {
-                    strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_SUBJECT;
-                }
-                else if ( StringUtils.isBlank( strMessage ) )
-                {
-                    strRequiredField = NotifyCRMConstants.PROPERTY_LABEL_MESSAGE;
-                }
-            }
-
-            if ( StringUtils.isNotBlank( strRequiredField ) )
-            {
-                Object[] tabRequiredFields = { I18nService.getLocalizedString( strRequiredField, locale ) };
-                strError = AdminMessageService.getMessageUrl( request, NotifyCRMConstants.MESSAGE_MANDATORY_FIELD,
-                        tabRequiredFields, AdminMessage.TYPE_STOP );
-            }
-        }
-
-        return strError;
     }
 }

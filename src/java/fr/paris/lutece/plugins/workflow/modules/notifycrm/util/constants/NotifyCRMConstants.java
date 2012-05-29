@@ -63,6 +63,7 @@ public final class NotifyCRMConstants
     public static final String PROPERTY_LABEL_MESSAGE = "module.workflow.notifycrm.task_notify_crm_config.label_message";
     public static final String PROPERTY_LABEL_STATUS_TEXT = "module.workflow.notifycrm.task_notify_crm_config.label_status_text";
     public static final String PROPERTY_WEBSERVICE_REST_CRM_NOTIFICATION_WEBAPP_URL = "workflow-notifycrm.rest.crmNotification.webapp.url";
+    public static final String PROPERTY_CRMCLIENT_REST_WEBAPP_URL = "crmclient.crm.rest.webapp.url";
 
     // MARKS
     public static final String MARK_CONFIG = "config";
@@ -70,7 +71,7 @@ public final class NotifyCRMConstants
     public static final String MARK_LIST_ENTRIES_USER_GUID = "list_entries_user_guid";
     public static final String MARK_LIST_DIRECTORIES = "list_directories";
     public static final String MARK_LIST_ENTRIES_FREEMARKER = "list_entries_freemarker";
-    public static final String MARK_DEFAULT_SENDER_NAME = "default_sender_name";
+    public static final String MARK_DEFAULT_SENDER_NAME = "defaultSenderName";
     public static final String MARK_MESSAGE = "message";
     public static final String MARK_STATUS = "status";
     public static final String MARK_POSITION = "position_";
@@ -86,6 +87,7 @@ public final class NotifyCRMConstants
     public static final String MARK_LAST_NAME = "last_name";
     public static final String MARK_EMAIL = "email";
     public static final String MARK_PHONE_NUMBER = "phone_number";
+    public static final String MARK_DEFAULT_CRM_WEBAPP_BASE_URL = "defaultCRMWebAppBaseURL";
 
     // PARAMETERS
     public static final String PARAMETER_SUBJECT = "subject";
@@ -103,6 +105,7 @@ public final class NotifyCRMConstants
     public static final String PARAMETER_STATUS_TEXT = "status_text";
     public static final String PARAMETER_DEMAND_DATA = "demand_data";
     public static final String PARAMETER_ID_STATUS_CRM = "id_status_crm";
+    public static final String PARAMETER_CRM_WEBAPP_BASE_URL = "crm_web_app_base_url";
 
     // MESSAGES
     public static final String MESSAGE_MANDATORY_FIELD = "module.workflow.notifycrm.message.mandatoryField";

@@ -33,23 +33,35 @@
  */
 package fr.paris.lutece.plugins.workflow.modules.notifycrm.business;
 
+import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.annotation.NotifyCRMConfig;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 
 /**
  *
  * TaskNotifyCRMConfig
  *
  */
+@NotifyCRMConfig
 public class TaskNotifyCRMConfig
 {
     private int _nIdTask;
+    @NotNull
+    @Min( 1 )
     private int _nIdDirectory;
+    @NotNull
+    @Min( 1 )
     private int _nPositionEntryDirectoryIdDemand;
     private int _nPositionEntryDirectoryUserGuid;
     private boolean _bSendNotification;
     private String _strSubject;
     private String _strMessage;
     private String _strSenderName;
+    @NotNull
     private String _strStatusText;
+    private String _strBaseURL;
 
     /**
      * Get the ID task
@@ -211,5 +223,21 @@ public class TaskNotifyCRMConfig
     public String getStatusText(  )
     {
         return _strStatusText;
+    }
+
+    /**
+     * @param strBaseURL the _strCRMWebAppBaseURL to set
+     */
+    public void setBaseURL( String strBaseURL )
+    {
+        _strBaseURL = strBaseURL;
+    }
+
+    /**
+     * @return the _strCRMWebAppBaseURL
+     */
+    public String getBaseURL(  )
+    {
+        return _strBaseURL;
     }
 }

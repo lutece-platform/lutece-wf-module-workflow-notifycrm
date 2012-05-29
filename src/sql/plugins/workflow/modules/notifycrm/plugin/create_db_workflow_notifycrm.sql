@@ -12,5 +12,6 @@ CREATE TABLE task_notify_crm_cf(
   subject VARCHAR(255) DEFAULT NULL, 
   message long VARCHAR DEFAULT NULL,
   status_text VARCHAR(255) DEFAULT '' NOT NULL,
+  crm_webapp_base_url VARCHAR(255) DEFAULT '' NOT NULL,
   PRIMARY KEY (id_task)
 );

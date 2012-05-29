@@ -33,7 +33,7 @@
  */
 package fr.paris.lutece.plugins.workflow.modules.notifycrm.service;
 
-import fr.paris.lutece.plugins.crmclient.service.CRMClientService;
+import fr.paris.lutece.plugins.crmclient.service.ICRMClientService;
 import fr.paris.lutece.plugins.directory.business.Directory;
 import fr.paris.lutece.plugins.directory.business.DirectoryHome;
 import fr.paris.lutece.plugins.directory.business.Record;
@@ -73,6 +73,8 @@ public class TaskNotifyCRM extends SimpleTask
     private ITaskNotifyCRMConfigService _taskNotifyCRMConfigService;
     @Inject
     private INotifyCRMService _notifyCRMService;
+    @Inject
+    private ICRMClientService _crmClientService;
 
     /**
      * {@inheritDoc}
@@ -95,7 +97,6 @@ public class TaskNotifyCRM extends SimpleTask
             {
                 Directory directory = DirectoryHome.findByPrimaryKey( record.getDirectory(  ).getIdDirectory(  ),
                         pluginDirectory );
-                CRMClientService crmClientService = CRMClientService.getService(  );
 
                 if ( directory != null )
                 {
@@ -117,10 +118,10 @@ public class TaskNotifyCRM extends SimpleTask
                         String strMessage = template.getHtml(  );
                         String strSender = config.getSenderName(  );
 
-                        crmClientService.notify( strIdDemand, strObject, strMessage, strSender );
+                        _crmClientService.notify( strIdDemand, strObject, strMessage, strSender, config.getBaseURL(  ) );
                     }
 
-                    crmClientService.sendUpdateDemand( strIdDemand, strStatusText );
+                    _crmClientService.sendUpdateDemand( strIdDemand, strStatusText, config.getBaseURL(  ) );
                 }
             }
         }

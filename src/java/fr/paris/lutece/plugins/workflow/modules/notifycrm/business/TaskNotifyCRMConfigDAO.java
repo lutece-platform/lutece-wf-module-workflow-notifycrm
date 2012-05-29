@@ -47,14 +47,14 @@ import java.util.List;
  */
 public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
 {
-    private static final String SQL_QUERY_FIND_BY_PRIMARY_KEY = " SELECT id_task, id_directory, position_directory_entry_id_demand, position_directory_entry_user_guid, send_notification, sender_name, subject, message, status_text " +
+    private static final String SQL_QUERY_FIND_BY_PRIMARY_KEY = " SELECT id_task, id_directory, position_directory_entry_id_demand, position_directory_entry_user_guid, send_notification, sender_name, subject, message, status_text, crm_webapp_base_url " +
         " FROM task_notify_crm_cf  WHERE id_task = ? ";
-    private static final String SQL_QUERY_INSERT = " INSERT INTO task_notify_crm_cf( id_task, id_directory, position_directory_entry_id_demand, position_directory_entry_user_guid, send_notification, sender_name, subject, message, status_text )" +
-        " VALUES ( ?,?,?,?,?,?,?,?,? ) ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE task_notify_crm_cf SET id_directory = ?, position_directory_entry_id_demand = ?, position_directory_entry_user_guid = ?, send_notification = ?, sender_name = ?, subject = ?, message = ?, status_text = ? " +
+    private static final String SQL_QUERY_INSERT = " INSERT INTO task_notify_crm_cf( id_task, id_directory, position_directory_entry_id_demand, position_directory_entry_user_guid, send_notification, sender_name, subject, message, status_text, crm_webapp_base_url )" +
+        " VALUES ( ?,?,?,?,?,?,?,?,?,? ) ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE task_notify_crm_cf SET id_directory = ?, position_directory_entry_id_demand = ?, position_directory_entry_user_guid = ?, send_notification = ?, sender_name = ?, subject = ?, message = ?, status_text = ?, crm_webapp_base_url = ? " +
         " WHERE id_task = ? ";
     private static final String SQL_QUERY_DELETE = " DELETE FROM task_notify_crm_cf WHERE id_task = ? ";
-    private static final String SQL_QUERY_FIND_ALL = " SELECT id_task, id_directory, position_directory_entry_id_demand, position_directory_entry_user_guid, send_notification, sender_name, subject, message, status_text " +
+    private static final String SQL_QUERY_FIND_ALL = " SELECT id_task, id_directory, position_directory_entry_id_demand, position_directory_entry_user_guid, send_notification, sender_name, subject, message, status_text, crm_webapp_base_url " +
         " FROM task_notify_crm_cf ";
 
     /**
@@ -76,6 +76,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
         daoUtil.setString( nIndex++, config.getSubject(  ) );
         daoUtil.setString( nIndex++, config.getMessage(  ) );
         daoUtil.setString( nIndex++, config.getStatusText(  ) );
+        daoUtil.setString( nIndex++, config.getBaseURL(  ) );
 
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
@@ -99,6 +100,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
         daoUtil.setString( nIndex++, config.getSubject(  ) );
         daoUtil.setString( nIndex++, config.getMessage(  ) );
         daoUtil.setString( nIndex++, config.getStatusText(  ) );
+        daoUtil.setString( nIndex++, config.getBaseURL(  ) );
 
         daoUtil.setInt( nIndex++, config.getIdTask(  ) );
         daoUtil.executeUpdate(  );
@@ -132,6 +134,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
             config.setSubject( daoUtil.getString( nIndex++ ) );
             config.setMessage( daoUtil.getString( nIndex++ ) );
             config.setStatusText( daoUtil.getString( nIndex++ ) );
+            config.setBaseURL( daoUtil.getString( nIndex++ ) );
         }
 
         daoUtil.free(  );
@@ -176,6 +179,7 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
             config.setSubject( daoUtil.getString( nIndex++ ) );
             config.setMessage( daoUtil.getString( nIndex++ ) );
             config.setStatusText( daoUtil.getString( nIndex++ ) );
+            config.setBaseURL( daoUtil.getString( nIndex++ ) );
             configList.add( config );
         }
 
