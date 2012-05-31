@@ -44,7 +44,7 @@ import javax.validation.ConstraintValidatorContext;
 
 /**
  *
- * TaskNotifyCRMConfigValidator
+ * Validator that checks the validity of the configuration.
  *
  */
 public class NotifyCRMConfigValidator implements ConstraintValidator<NotifyCRMConfig, TaskNotifyCRMConfig>

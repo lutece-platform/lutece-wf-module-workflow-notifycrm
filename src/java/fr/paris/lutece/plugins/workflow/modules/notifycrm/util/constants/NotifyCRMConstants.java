@@ -47,22 +47,12 @@ public final class NotifyCRMConstants
     public static final String OPEN_BRACKET = "(";
     public static final String CLOSED_BRACKET = ")";
     public static final String HYPHEN = "-";
-    public static final String ID = "id";
-    public static final String NAME = "name";
 
     // PROPERTIES
     public static final String PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_ID_DEMAND = "workflow-notifycrm.acceptedDirectoryEntryTypesIdDemand";
     public static final String PROPERTY_REFUSED_DIRECTORY_ENTRY_TYPE = "workflow-notifycrm.refusedDirectoryEntryTypes";
     public static final String PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_USER_GUID = "workflow-notifycrm.acceptedDirectoryEntryTypesUserGuid";
     public static final String PROPERTY_DEFAULT_SENDER_NAME = "workflow-notifycrm.defaultSenderName";
-    public static final String PROPERTY_LABEL_REFERENCED_ENTRY = "module.workflow.notifycrm.task_notify_crm_config.label_reference_entry";
-    public static final String PROPERTY_LABEL_DIRECTORY = "module.workflow.notifycrm.task_notify_crm_config.label_task_directory";
-    public static final String PROPERTY_LABEL_POSITION_ENTRY_DIRECTORY_ID_DEMAND = "module.workflow.notifycrm.task_notify_crm_config.label_task_entry_directory_id_demand";
-    public static final String PROPERTY_LABEL_SENDER_NAME = "module.workflow.notifycrm.task_notify_crm_config.label_sender_name";
-    public static final String PROPERTY_LABEL_SUBJECT = "module.workflow.notifycrm.task_notify_crm_config.label_subject";
-    public static final String PROPERTY_LABEL_MESSAGE = "module.workflow.notifycrm.task_notify_crm_config.label_message";
-    public static final String PROPERTY_LABEL_STATUS_TEXT = "module.workflow.notifycrm.task_notify_crm_config.label_status_text";
-    public static final String PROPERTY_WEBSERVICE_REST_CRM_NOTIFICATION_WEBAPP_URL = "workflow-notifycrm.rest.crmNotification.webapp.url";
     public static final String PROPERTY_CRMCLIENT_REST_WEBAPP_URL = "crmclient.crm.rest.webapp.url";
 
     // MARKS
@@ -90,29 +80,7 @@ public final class NotifyCRMConstants
     public static final String MARK_DEFAULT_CRM_WEBAPP_BASE_URL = "defaultCRMWebAppBaseURL";
 
     // PARAMETERS
-    public static final String PARAMETER_SUBJECT = "subject";
-    public static final String PARAMETER_MESSAGE = "message";
-    public static final String PARAMETER_SENDER_NAME = "sender_name";
-    public static final String PARAMETER_ID_DIRECTORY = "id_directory";
-    public static final String PARAMETER_POSITION_ENTRY_DIRECTORY_ID_DEMAND = "position_entry_directory_id_demand";
-    public static final String PARAMETER_POSITION_ENTRY_DIRECTORY_USER_GUID = "position_entry_directory_user_guid";
-    public static final String PARAMETER_SEND_NOTIFICATION = "send_notification";
     public static final String PARAMETER_APPLY = "apply";
-    public static final String PARAMETER_NOTIFICATION_OBJECT = "notification_object";
-    public static final String PARAMETER_NOTIFICATION_MESSAGE = "notification_message";
-    public static final String PARAMETER_NOTIFICATION_SENDER = "notification_sender";
-    public static final String PARAMETER_ID_DEMAND = "id_demand";
-    public static final String PARAMETER_STATUS_TEXT = "status_text";
-    public static final String PARAMETER_DEMAND_DATA = "demand_data";
-    public static final String PARAMETER_ID_STATUS_CRM = "id_status_crm";
-    public static final String PARAMETER_CRM_WEBAPP_BASE_URL = "crm_web_app_base_url";
-
-    // MESSAGES
-    public static final String MESSAGE_MANDATORY_FIELD = "module.workflow.notifycrm.message.mandatoryField";
-
-    // URL
-    public static final String URL_REST_NOTIFY = "/rest/crm/notify/demand";
-    public static final String URL_REST_UPDATE_DEMAND = "/rest/crm/demand/update";
 
     /**
      * Private constructor
