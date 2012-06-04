@@ -39,8 +39,8 @@ import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.ITaskNotifyCRM
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
 import fr.paris.lutece.plugins.workflow.service.WorkflowPlugin;
 import fr.paris.lutece.plugins.workflow.service.security.IWorkflowUserAttributesManager;
-import fr.paris.lutece.plugins.workflow.web.task.NoFormTaskComponent;
 import fr.paris.lutece.plugins.workflowcore.service.task.ITask;
+import fr.paris.lutece.plugins.workflowcore.web.task.NoFormTaskComponent;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
