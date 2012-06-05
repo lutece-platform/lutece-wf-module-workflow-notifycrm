@@ -15,20 +15,24 @@
 		p:pluginName="workflow-notifycrm" />
 	
 	<!-- DAO -->
-	<bean id="workflow-notifycrm.taskNotifyCRMConfigDAO" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfigDAO"/>
+	<bean id="workflow-notifycrm.taskNotifyCRMConfigDAO" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfigDAO" />
 
 	<!-- Services -->
-	<bean id="workflow-notifycrm.taskNotifyCRMConfigService" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.TaskNotifyCRMConfigService"/>
-	<bean id="workflow-notifycrm.notifyCRMService" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.NotifyCRMService"/>
+	<bean id="workflow-notifycrm.taskNotifyCRMConfigService" class="fr.paris.lutece.plugins.workflowcore.service.config.TaskConfigService"
+		p:taskConfigDAO-ref="workflow-notifycrm.taskNotifyCRMConfigDAO" />
+	<bean id="workflow-notifycrm.notifyCRMService" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.NotifyCRMService" />
 
 	<!-- Task -->
 	<bean id="workflow-notifycrm.taskTypeNotifyCRM" class="fr.paris.lutece.plugins.workflowcore.business.task.TaskType"
 		p:key="taskNotifyCRM" 
 		p:titleI18nKey="module.workflow.notifycrm.task_notify_crm_title" 
 		p:beanName="workflow-notifycrm.taskNotifyCRM"
+		p:configBeanName="workflow-notifycrm.taskNotifyCRMConfig"
 		p:configRequired="true" 
 		p:taskForAutomaticAction="true" />
 	<bean id="workflow-notifycrm.taskNotifyCRM" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.TaskNotifyCRM" scope="prototype" />
+	<bean id="workflow-notifycrm.taskNotifyCRMConfig" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig" scope="prototype" />
 	<bean id="workflow-notifycrm.notifyCRMTaskComponent" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.web.NotifyCRMTaskComponent"
-		p:taskType-ref="workflow-notifycrm.taskTypeNotifyCRM" />
+		p:taskType-ref="workflow-notifycrm.taskTypeNotifyCRM"
+		p:taskConfigService-ref="workflow-notifycrm.taskNotifyCRMConfigService" />
 </beans>

@@ -48,6 +48,9 @@ public final class NotifyCRMConstants
     public static final String CLOSED_BRACKET = ")";
     public static final String HYPHEN = "-";
 
+    // BEANS
+    public static final String BEAN_TASK_CONFIG_SERVICE = "workflow-notifycrm.taskNotifyCRMConfigService";
+
     // PROPERTIES
     public static final String PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_ID_DEMAND = "workflow-notifycrm.acceptedDirectoryEntryTypesIdDemand";
     public static final String PROPERTY_REFUSED_DIRECTORY_ENTRY_TYPE = "workflow-notifycrm.refusedDirectoryEntryTypes";

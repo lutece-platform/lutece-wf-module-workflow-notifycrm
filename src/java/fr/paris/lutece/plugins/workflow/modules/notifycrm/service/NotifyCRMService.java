@@ -51,6 +51,7 @@ import fr.paris.lutece.plugins.workflow.service.security.IWorkflowUserAttributes
 import fr.paris.lutece.plugins.workflow.service.taskinfo.ITaskInfoProvider;
 import fr.paris.lutece.plugins.workflow.service.taskinfo.TaskInfoManager;
 import fr.paris.lutece.plugins.workflowcore.business.state.State;
+import fr.paris.lutece.plugins.workflowcore.service.config.ITaskConfigService;
 import fr.paris.lutece.plugins.workflowcore.service.task.ITask;
 import fr.paris.lutece.plugins.workflowcore.service.task.ITaskService;
 import fr.paris.lutece.portal.service.i18n.I18nService;
@@ -70,6 +71,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -86,7 +88,8 @@ public final class NotifyCRMService implements INotifyCRMService
     private List<Integer> _listRefusedEntryTypes;
     private List<Integer> _listAcceptedEntryTypesUserGuid;
     @Inject
-    private ITaskNotifyCRMConfigService _taskNotifyCRMConfigService;
+    @Named( NotifyCRMConstants.BEAN_TASK_CONFIG_SERVICE )
+    private ITaskConfigService _taskNotifyCRMConfigService;
     @Inject
     private IWorkflowUserAttributesManager _userAttributesManager;
     @Inject

@@ -33,11 +33,9 @@
  */
 package fr.paris.lutece.plugins.workflow.modules.notifycrm.business;
 
-import fr.paris.lutece.portal.service.plugin.Plugin;
+import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.NotifyCRMPlugin;
+import fr.paris.lutece.plugins.workflowcore.business.config.ITaskConfigDAO;
 import fr.paris.lutece.util.sql.DAOUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -45,7 +43,7 @@ import java.util.List;
  * TaskNotifyCRMConfigDAO
  *
  */
-public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
+public class TaskNotifyCRMConfigDAO implements ITaskConfigDAO<TaskNotifyCRMConfig>
 {
     private static final String SQL_QUERY_FIND_BY_PRIMARY_KEY = " SELECT id_task, id_directory, position_directory_entry_id_demand, position_directory_entry_user_guid, send_notification, sender_name, subject, message, status_text, crm_webapp_base_url " +
         " FROM task_notify_crm_cf  WHERE id_task = ? ";
@@ -54,16 +52,14 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
     private static final String SQL_QUERY_UPDATE = "UPDATE task_notify_crm_cf SET id_directory = ?, position_directory_entry_id_demand = ?, position_directory_entry_user_guid = ?, send_notification = ?, sender_name = ?, subject = ?, message = ?, status_text = ?, crm_webapp_base_url = ? " +
         " WHERE id_task = ? ";
     private static final String SQL_QUERY_DELETE = " DELETE FROM task_notify_crm_cf WHERE id_task = ? ";
-    private static final String SQL_QUERY_FIND_ALL = " SELECT id_task, id_directory, position_directory_entry_id_demand, position_directory_entry_user_guid, send_notification, sender_name, subject, message, status_text, crm_webapp_base_url " +
-        " FROM task_notify_crm_cf ";
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public synchronized void insert( TaskNotifyCRMConfig config, Plugin plugin )
+    public synchronized void insert( TaskNotifyCRMConfig config )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, NotifyCRMPlugin.getPlugin(  ) );
 
         int nIndex = 1;
 
@@ -86,9 +82,9 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
      * {@inheritDoc}
      */
     @Override
-    public void store( TaskNotifyCRMConfig config, Plugin plugin )
+    public void store( TaskNotifyCRMConfig config )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, NotifyCRMPlugin.getPlugin(  ) );
 
         int nIndex = 1;
 
@@ -111,10 +107,10 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
      * {@inheritDoc}
      */
     @Override
-    public TaskNotifyCRMConfig load( int nIdTask, Plugin plugin )
+    public TaskNotifyCRMConfig load( int nIdTask )
     {
         TaskNotifyCRMConfig config = null;
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_BY_PRIMARY_KEY, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_BY_PRIMARY_KEY, NotifyCRMPlugin.getPlugin(  ) );
 
         daoUtil.setInt( 1, nIdTask );
 
@@ -146,45 +142,12 @@ public class TaskNotifyCRMConfigDAO implements ITaskNotifyCRMConfigDAO
      * {@inheritDoc}
      */
     @Override
-    public void delete( int nIdTask, Plugin plugin )
+    public void delete( int nIdTask )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, NotifyCRMPlugin.getPlugin(  ) );
 
         daoUtil.setInt( 1, nIdTask );
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<TaskNotifyCRMConfig> loadAll( Plugin plugin )
-    {
-        List<TaskNotifyCRMConfig> configList = new ArrayList<TaskNotifyCRMConfig>(  );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_FIND_ALL, plugin );
-
-        daoUtil.executeQuery(  );
-
-        int nIndex = 1;
-
-        if ( daoUtil.next(  ) )
-        {
-            TaskNotifyCRMConfig config = new TaskNotifyCRMConfig(  );
-            config.setIdTask( daoUtil.getInt( nIndex++ ) );
-            config.setIdDirectory( daoUtil.getInt( nIndex++ ) );
-            config.setPositionEntryDirectoryIdDemand( daoUtil.getInt( nIndex++ ) );
-            config.setPositionEntryDirectoryUserGuid( daoUtil.getInt( nIndex++ ) );
-            config.setSendNotification( daoUtil.getBoolean( nIndex++ ) );
-            config.setSenderName( daoUtil.getString( nIndex++ ) );
-            config.setSubject( daoUtil.getString( nIndex++ ) );
-            config.setMessage( daoUtil.getString( nIndex++ ) );
-            config.setStatusText( daoUtil.getString( nIndex++ ) );
-            config.setBaseURL( daoUtil.getString( nIndex++ ) );
-            configList.add( config );
-        }
-
-        daoUtil.free(  );
-
-        return configList;
     }
 }

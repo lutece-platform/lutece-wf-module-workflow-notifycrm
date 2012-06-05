@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.workflow.modules.notifycrm.business;
 
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.annotation.NotifyCRMConfig;
+import fr.paris.lutece.plugins.workflowcore.business.config.TaskConfig;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -45,9 +46,8 @@ import javax.validation.constraints.NotNull;
  *
  */
 @NotifyCRMConfig
-public class TaskNotifyCRMConfig
+public class TaskNotifyCRMConfig extends TaskConfig
 {
-    private int _nIdTask;
     @NotNull
     @Min( 1 )
     private int _nIdDirectory;
@@ -62,24 +62,6 @@ public class TaskNotifyCRMConfig
     @NotNull
     private String _strStatusText;
     private String _strBaseURL;
-
-    /**
-     * Get the ID task
-     * @return id Task
-     */
-    public int getIdTask(  )
-    {
-        return _nIdTask;
-    }
-
-    /**
-     * Set id Task
-     * @param idTask id task
-     */
-    public void setIdTask( int idTask )
-    {
-        _nIdTask = idTask;
-    }
 
     /**
      * Get the ID directory
@@ -154,9 +136,9 @@ public class TaskNotifyCRMConfig
     }
 
     /**
-    * Get the subject
-    * @return the subject of the message
-    */
+     * Get the subject
+     * @return the subject of the message
+     */
     public String getSubject(  )
     {
         return _strSubject;

@@ -35,12 +35,12 @@ package fr.paris.lutece.plugins.workflow.modules.notifycrm.web;
 
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.INotifyCRMService;
-import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.ITaskNotifyCRMConfigService;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
 import fr.paris.lutece.plugins.workflow.service.WorkflowPlugin;
 import fr.paris.lutece.plugins.workflow.service.security.IWorkflowUserAttributesManager;
+import fr.paris.lutece.plugins.workflow.web.task.NoFormTaskComponent;
+import fr.paris.lutece.plugins.workflowcore.service.config.ITaskConfigService;
 import fr.paris.lutece.plugins.workflowcore.service.task.ITask;
-import fr.paris.lutece.plugins.workflowcore.web.task.NoFormTaskComponent;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -64,6 +64,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -79,7 +80,8 @@ public class NotifyCRMTaskComponent extends NoFormTaskComponent
 {
     private static final String TEMPLATE_TASK_NOTIFY_CRM_CONFIG = "admin/plugins/workflow/modules/notifycrm/task_notify_crm_config.html";
     @Inject
-    private ITaskNotifyCRMConfigService _taskNotifyCRMConfigService;
+    @Named( NotifyCRMConstants.BEAN_TASK_CONFIG_SERVICE )
+    private ITaskConfigService _taskNotifyCRMConfigService;
     @Inject
     private INotifyCRMService _notifyCRMService;
     @Inject
