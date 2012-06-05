@@ -34,7 +34,7 @@
 package fr.paris.lutece.plugins.workflow.modules.notifycrm.business;
 
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.annotation.NotifyCRMConfig;
-import fr.paris.lutece.plugins.workflowcore.business.config.TaskConfig;
+import fr.paris.lutece.plugins.workflownotify.business.TaskNotifyConfig;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -46,7 +46,7 @@ import javax.validation.constraints.NotNull;
  *
  */
 @NotifyCRMConfig
-public class TaskNotifyCRMConfig extends TaskConfig
+public class TaskNotifyCRMConfig extends TaskNotifyConfig
 {
     @NotNull
     @Min( 1 )
@@ -56,9 +56,6 @@ public class TaskNotifyCRMConfig extends TaskConfig
     private int _nPositionEntryDirectoryIdDemand;
     private int _nPositionEntryDirectoryUserGuid;
     private boolean _bSendNotification;
-    private String _strSubject;
-    private String _strMessage;
-    private String _strSenderName;
     @NotNull
     private String _strStatusText;
     private String _strBaseURL;
@@ -133,60 +130,6 @@ public class TaskNotifyCRMConfig extends TaskConfig
     public boolean getSendNotification(  )
     {
         return _bSendNotification;
-    }
-
-    /**
-     * Get the subject
-     * @return the subject of the message
-     */
-    public String getSubject(  )
-    {
-        return _strSubject;
-    }
-
-    /**
-     * Set the subject of the message
-     * @param subject the subject of the message
-     */
-    public void setSubject( String subject )
-    {
-        _strSubject = subject;
-    }
-
-    /**
-     * Get the message
-     * @return the message of the notification
-     */
-    public String getMessage(  )
-    {
-        return _strMessage;
-    }
-
-    /**
-     * Set the message of the notification
-     * @param message the message of the notification
-     */
-    public void setMessage( String message )
-    {
-        _strMessage = message;
-    }
-
-    /**
-     * Get the sender name
-     * @return the sender name
-     */
-    public String getSenderName(  )
-    {
-        return _strSenderName;
-    }
-
-    /**
-     * Set the sender name
-     * @param senderName  the sender name
-     */
-    public void setSenderName( String senderName )
-    {
-        _strSenderName = senderName;
     }
 
     /**

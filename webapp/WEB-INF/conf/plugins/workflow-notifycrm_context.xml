@@ -21,6 +21,7 @@
 	<bean id="workflow-notifycrm.taskNotifyCRMConfigService" class="fr.paris.lutece.plugins.workflowcore.service.config.TaskConfigService"
 		p:taskConfigDAO-ref="workflow-notifycrm.taskNotifyCRMConfigDAO" />
 	<bean id="workflow-notifycrm.notifyCRMService" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.NotifyCRMService" />
+	<bean id="workflow-notifycrm.notifyService" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.notification.NotifyService" />
 
 	<!-- Task -->
 	<bean id="workflow-notifycrm.taskTypeNotifyCRM" class="fr.paris.lutece.plugins.workflowcore.business.task.TaskType"
@@ -30,9 +31,15 @@
 		p:configBeanName="workflow-notifycrm.taskNotifyCRMConfig"
 		p:configRequired="true" 
 		p:taskForAutomaticAction="true" />
-	<bean id="workflow-notifycrm.taskNotifyCRM" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.TaskNotifyCRM" scope="prototype" />
+	<bean id="workflow-notifycrm.taskNotifyCRM" class="fr.paris.lutece.plugins.workflownotify.service.TaskNotify" scope="prototype"
+		p:converter-ref="workflow-notifycrm.messageConverter"
+		p:taskConfigService-ref="workflow-notifycrm.taskNotifyCRMConfigService"
+		p:notifyService-ref="workflow-notifycrm.notifyService" />
 	<bean id="workflow-notifycrm.taskNotifyCRMConfig" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig" scope="prototype" />
 	<bean id="workflow-notifycrm.notifyCRMTaskComponent" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.web.NotifyCRMTaskComponent"
 		p:taskType-ref="workflow-notifycrm.taskTypeNotifyCRM"
 		p:taskConfigService-ref="workflow-notifycrm.taskNotifyCRMConfigService" />
+		
+	<!-- Converter -->
+	<bean id="workflow-notifycrm.messageConverter" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.convert.MessageConverter" />
 </beans>
