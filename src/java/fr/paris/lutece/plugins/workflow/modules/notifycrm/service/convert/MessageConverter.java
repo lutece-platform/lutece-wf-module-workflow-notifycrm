@@ -41,10 +41,9 @@ import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.INotifyCRMService;
 import fr.paris.lutece.plugins.workflownotify.business.MessageData;
+import fr.paris.lutece.plugins.workflownotify.service.converter.IMessageConverter;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-
-import org.springframework.core.convert.converter.Converter;
 
 import java.util.Map;
 
@@ -56,7 +55,7 @@ import javax.inject.Inject;
  * MessageConverter
  *
  */
-public class MessageConverter implements Converter<MessageData, Map<String, Object>>
+public class MessageConverter implements IMessageConverter
 {
     @Inject
     private INotifyCRMService _notifyCRMService;
