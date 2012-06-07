@@ -10,7 +10,7 @@
 	<groupId>fr.paris.lutece.plugins</groupId>
 	<artifactId>module-workflow-notifycrm</artifactId>
 	<packaging>lutece-plugin</packaging>
-	<version>2.0.0-SNAPSHOT</version>
+	<version>2.0.0</version>
 	<name>Workflow notify CRM module</name>
 
 	<repositories>
@@ -72,8 +72,8 @@
         <jiraComponentId>10562</jiraComponentId>
     </properties>
     <scm>
-        <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/directory-form-workflow/module-workflow-notifycrm</connection>
-        <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/directory-form-workflow/module-workflow-notifycrm</developerConnection>
-        <url>http://dev.lutece.paris.fr/viewvc/lutece/portal/trunk/plugins/directory-form-workflow/module-workflow-notifycrm</url>
+        <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/tags/module-workflow-notifycrm-2.0.0</connection>
+        <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/tags/module-workflow-notifycrm-2.0.0</developerConnection>
+        <url>http://dev.lutece.paris.fr/viewvc/lutece/portal/tags/module-workflow-notifycrm-2.0.0</url>
     </scm>
 </project>
