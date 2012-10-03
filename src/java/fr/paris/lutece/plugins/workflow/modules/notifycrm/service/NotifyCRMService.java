@@ -83,6 +83,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public final class NotifyCRMService implements INotifyCRMService
 {
+    /** The Constant BEAN_SERVICE. */
     public static final String BEAN_SERVICE = "workflow-notifycrm.notifyCRMService";
     private List<Integer> _listAcceptedEntryTypesIdDemand;
     private List<Integer> _listRefusedEntryTypes;
@@ -356,7 +357,9 @@ public final class NotifyCRMService implements INotifyCRMService
                 continue;
             }
             else if ( recordField.getEntry(  ) instanceof fr.paris.lutece.plugins.directory.business.EntryTypeGeolocation &&
-                    !recordField.getField(  ).getTitle(  ).equals( EntryTypeGeolocation.CONSTANT_ADDRESS ) )
+                    ( ( recordField.getField(  ) == null ) ||
+                    StringUtils.isBlank( recordField.getField(  ).getTitle(  ) ) ||
+                    !EntryTypeGeolocation.CONSTANT_ADDRESS.equals( recordField.getField(  ).getTitle(  ) ) ) )
             {
                 continue;
             }
