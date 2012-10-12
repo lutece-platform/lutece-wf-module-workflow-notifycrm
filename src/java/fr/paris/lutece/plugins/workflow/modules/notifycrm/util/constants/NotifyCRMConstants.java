@@ -47,6 +47,7 @@ public final class NotifyCRMConstants
     public static final String OPEN_BRACKET = "(";
     public static final String CLOSED_BRACKET = ")";
     public static final String HYPHEN = "-";
+    public static final String TASK_NOTIFY_CRM_KEY = "taskNotifyCRM";
 
     // BEANS
     public static final String BEAN_TASK_CONFIG_SERVICE = "workflow-notifycrm.taskNotifyCRMConfigService";

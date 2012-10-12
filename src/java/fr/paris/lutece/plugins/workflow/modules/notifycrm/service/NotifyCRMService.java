@@ -412,11 +412,16 @@ public final class NotifyCRMService implements INotifyCRMService
         String strUserGuid = getUserGuid( config, record.getIdRecord(  ), directory.getIdDirectory(  ) );
         fillModelWithUserAttributes( model, strUserGuid );
 
-        // Fill the model with the info of other tasks
-        for ( ITask task : getListTasks( nIdAction, locale ) )
+        ITask task = this._taskService.findByPrimaryKey( config.getIdTask(  ), request.getLocale(  ) );
+
+        if ( !task.getTaskType(  ).getKey(  ).equals( NotifyCRMConstants.TASK_NOTIFY_CRM_KEY ) )
         {
-            model.put( NotifyCRMConstants.MARK_TASK + task.getId(  ),
-                TaskInfoManager.getTaskResourceInfo( nIdHistory, task.getId(  ), request ) );
+            // Fill the model with the info of other tasks
+            for ( ITask otherTask : getListTasks( nIdAction, locale ) )
+            {
+                model.put( NotifyCRMConstants.MARK_TASK + otherTask.getId(  ),
+                    TaskInfoManager.getTaskResourceInfo( nIdHistory, otherTask.getId(  ), request ) );
+            }
         }
 
         return model;

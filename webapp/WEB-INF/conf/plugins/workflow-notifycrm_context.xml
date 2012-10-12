@@ -13,6 +13,10 @@
 	<!-- Transaction Manager -->
 	<bean id="workflow-notifycrm.transactionManager" class="fr.paris.lutece.portal.service.database.DAOUtilTransactionManager"
 		p:pluginName="workflow-notifycrm" />
+		
+	<!-- TaskInfoProvider -->
+	<bean id="workflow-notifycrm.notifyCRMTaskInfoProvider" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.service.taskinfo.NotifyCRMTaskInfoProvider"
+		p:taskType-ref="workflow-notifycrm.taskTypeNotifyCRM" />
 	
 	<!-- DAO -->
 	<bean id="workflow-notifycrm.taskNotifyCRMConfigDAO" class="fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfigDAO" />
