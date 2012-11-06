@@ -157,4 +157,12 @@ public interface INotifyCRMService
      */
     Map<String, Object> fillModel( TaskNotifyCRMConfig config, Record record, Directory directory,
         HttpServletRequest request, int nIdAction, int nIdHistory );
+
+    /**
+     * Gets the locale.
+     *
+     * @param request the request
+     * @return the locale
+     */
+    Locale getLocale( HttpServletRequest request );
 }

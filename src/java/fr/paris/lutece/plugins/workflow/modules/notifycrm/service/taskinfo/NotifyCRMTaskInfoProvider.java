@@ -55,6 +55,7 @@ import fr.paris.lutece.util.html.HtmlTemplate;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Locale;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -98,12 +99,12 @@ public class NotifyCRMTaskInfoProvider extends AbstractTaskInfoProvider
     public String getTaskResourceInfo( int nIdHistory, int nIdTask, HttpServletRequest request )
     {
         String strTaskResourceInfo = StringUtils.EMPTY;
-
+        Locale locale = _notifyCRMService.getLocale( request );
         ResourceHistory resourceHistory = _resourceHistoryService.findByPrimaryKey( nIdHistory );
         TaskNotifyCRMConfig config = _taskNotifyCRMConfigService.findByPrimaryKey( nIdTask );
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
         Record record = RecordHome.findByPrimaryKey( resourceHistory.getIdResource(  ), pluginDirectory );
-        ITask task = this._taskService.findByPrimaryKey( nIdTask, request.getLocale(  ) );
+        ITask task = _taskService.findByPrimaryKey( nIdTask, locale );
 
         if ( record != null )
         {
@@ -114,8 +115,7 @@ public class NotifyCRMTaskInfoProvider extends AbstractTaskInfoProvider
                     task.getAction(  ).getId(  ), nIdHistory );
 
             HtmlTemplate t = AppTemplateService.getTemplateFromStringFtl( AppTemplateService.getTemplate( 
-                        TEMPLATE_TASK_NOTIFY_NOTIFICATION, request.getLocale(  ), model ).getHtml(  ),
-                    request.getLocale(  ), model );
+                        TEMPLATE_TASK_NOTIFY_NOTIFICATION, locale, model ).getHtml(  ), locale, model );
 
             strTaskResourceInfo = t.getHtml(  );
         }

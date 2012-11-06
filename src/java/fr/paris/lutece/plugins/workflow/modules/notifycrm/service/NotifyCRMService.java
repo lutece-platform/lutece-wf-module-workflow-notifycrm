@@ -412,7 +412,7 @@ public final class NotifyCRMService implements INotifyCRMService
         String strUserGuid = getUserGuid( config, record.getIdRecord(  ), directory.getIdDirectory(  ) );
         fillModelWithUserAttributes( model, strUserGuid );
 
-        ITask task = this._taskService.findByPrimaryKey( config.getIdTask(  ), request.getLocale(  ) );
+        ITask task = _taskService.findByPrimaryKey( config.getIdTask(  ), locale );
 
         if ( !task.getTaskType(  ).getKey(  ).equals( NotifyCRMConstants.TASK_NOTIFY_CRM_KEY ) )
         {
@@ -425,6 +425,26 @@ public final class NotifyCRMService implements INotifyCRMService
         }
 
         return model;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Locale getLocale( HttpServletRequest request )
+    {
+        Locale locale = null;
+
+        if ( request != null )
+        {
+            locale = request.getLocale(  );
+        }
+        else
+        {
+            locale = I18nService.getDefaultLocale(  );
+        }
+
+        return locale;
     }
 
     // PRIVATES METHODS
@@ -472,27 +492,6 @@ public final class NotifyCRMService implements INotifyCRMService
         }
 
         return strRecordFieldValue;
-    }
-
-    /**
-     * Get the locale
-     * @param request the HTTP request
-     * @return the locale
-     */
-    private Locale getLocale( HttpServletRequest request )
-    {
-        Locale locale = null;
-
-        if ( request != null )
-        {
-            locale = request.getLocale(  );
-        }
-        else
-        {
-            locale = I18nService.getDefaultLocale(  );
-        }
-
-        return locale;
     }
 
     /**
