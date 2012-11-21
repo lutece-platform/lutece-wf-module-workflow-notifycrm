@@ -168,8 +168,7 @@ public class NotifyCRMTaskComponent extends NoFormTaskComponent
         model.put( NotifyCRMConstants.MARK_IS_USER_ATTRIBUTE_WS_ACTIVE, _userAttributesManager.isEnabled(  ) );
         model.put( NotifyCRMConstants.MARK_PLUGIN_WORKFLOW, pluginWorkflow );
         model.put( NotifyCRMConstants.MARK_LOCALE, locale );
-        model.put( NotifyCRMConstants.MARK_TASKS_LIST,
-            _notifyCRMService.getListTasks( task.getAction(  ).getId(  ), locale ) );
+        model.put( NotifyCRMConstants.MARK_TASKS_LIST, _notifyCRMService.getListBelowTasks( task, locale ) );
         model.put( NotifyCRMConstants.MARK_DEFAULT_CRM_WEBAPP_BASE_URL,
             AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_CRMCLIENT_REST_WEBAPP_URL ) );
 
