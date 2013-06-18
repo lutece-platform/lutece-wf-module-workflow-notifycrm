@@ -20,169 +20,178 @@
 	<#assign sendNotification = config.sendNotification>
 	<#assign baseURL = config.baseURL>
 </#if>
-<fieldset>
-	<legend>#i18n{module.workflow.notifycrm.task_notify_crm_config.title}</legend>
-	<div class="well well-small">
-		<div class="control-group">
-			<label class="control-label" for="idDirectory">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_directory} * </label>
-			<div class="controls">
-				<@comboWithParams name="idDirectory" default_value=idDirectory?string additionalParameters="class=\"input-xxlarge\"" items=list_directories />
+
+<h2>#i18n{module.workflow.notifycrm.task_notify_crm_config.title}</h2>
+<div class="highlight-box">
+	<br />
+	<p>
+		<label for="idDirectory">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_directory} * :</label>
+		<@combo name="idDirectory" items=list_directories default_value=idDirectory />
+	</p>
+	<#if list_entries_id_demand?exists>
+		<p id="entry_id_demand">
+			<label for="positionEntryDirectoryIdDemand">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_entry_directory_id_demand} * :</label>
+			<@combo name="positionEntryDirectoryIdDemand" items=list_entries_id_demand default_value=positionEntryDirectoryIdDemand />&nbsp;
+			<br/>
+			<label>&nbsp;</label>
+			#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_entry_directory_id_demand_comment}
+		</p>
+	</#if>
+	<#if list_entries_user_guid?exists && is_user_attribute_ws_active>
+		<p id="entry_user_guid">
+			<label for="positionEntryDirectoryUserGuid">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_entry_directory_user_guid} :</label>
+			<@combo name="positionEntryDirectoryUserGuid" items=list_entries_user_guid default_value=positionEntryDirectoryUserGuid />&nbsp;
+			<br/>
+			<label>&nbsp;</label>
+			#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_entry_directory_user_guid_comment}
+		</p>
+	</#if>
+	<p>
+		<label for="statusText">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_status_text} * :</label>
+		<input type="text" name="statusText" value="${statusText!}" size="80" maxlength="255" />
+	</p>
+	<p>
+		<label for="sendNotification">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_send_notification} :</label>
+		<input type="radio" name="sendNotification" value="true" <#if sendNotification>checked="checked"</#if> />
+		&nbsp;#i18n{module.workflow.notifycrm.task_notify_crm_config.label_send_notification.yes}
+		<input type="radio" name="sendNotification" value="false" <#if !sendNotification>checked="checked"</#if> />
+		&nbsp;#i18n{module.workflow.notifycrm.task_notify_crm_config.label_send_notification.no}
+	</p>
+	<p>
+		<label for="baseURL">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_crm_webapp_base_url} :</label>
+		<input type="text" name="baseURL" value="${baseURL!}" size="80" maxlength="255" />
+		<br />
+		<label>&nbsp;</label>
+		#i18n{module.workflow.notifycrm.task_notify_crm_config.label_crm_webapp_base_url_comment} : ${defaultCRMWebAppBaseURL!}
+	</p>
+	<p>
+		<input class="button" type="submit" name="apply" value="#i18n{module.workflow.notifycrm.task_notify_crm_config.label_apply}"/>
+	</p>
+	<br />
+</div>
+<#if sendNotification>
+	<div class="highlight-box">
+		<br />
+		<p>
+			<label for="senderName">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_sender_name} * :</label>
+			
+			<input type="text" name="senderName" id="" size="80" value="${senderName}" maxlength="255" />		
+			<br/>
+			<label>&nbsp;</label>
+			#i18n{module.workflow.notifycrm.task_notify_crm_config.label_sender_name_comment}
+		</p>
+	
+	  	<p>
+	    	<label for="suject">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_subject} * :</label>
+			<input type="text" name="subject" id="" size="80" value="${subject}" maxlength="255" />
+			<br/>
+			<label>&nbsp;</label>
+			#i18n{module.workflow.notifycrm.task_notify_crm_config.label_subject_comment}
+		</p>
+		
+		<p>
+			<label for="message">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_message} * :</label>
+			<div class="editor">
+				<textarea name="message" id="" rows="20" cols="90" class="richtext">${message}</textarea>
 			</div>
-		</div>
-		<#if list_entries_id_demand?exists>
-			<div class="control-group">
-				<label class="control-label" for="positionEntryDirectoryIdDemand">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_entry_directory_id_demand} * </label>
-				<div class="controls">
-					<@combo name="positionEntryDirectoryIdDemand" items=list_entries_id_demand default_value=positionEntryDirectoryIdDemand />&nbsp;
-					<span class="help-text">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_entry_directory_id_demand_comment}</span>
-				</div>
-			</div>
-		</#if>
-		<#if list_entries_user_guid?exists && is_user_attribute_ws_active>
-			<div class="control-group" id="entry_user_guid">
-			<label class="control-label"  for="positionEntryDirectoryUserGuid">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_entry_directory_user_guid}</label>
-				<div class="controls">
-					<@combo name="positionEntryDirectoryUserGuid" items=list_entries_user_guid default_value=positionEntryDirectoryUserGuid />&nbsp;
-					<span class="help-text">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_entry_directory_user_guid_comment}</span>
-				</div>
-			</div>
-		</#if>
-		<div class="control-group" id="entry_user_guid">
-			<label class="control-label"  for="statusText">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_status_text} * </label>
-			<div class="controls">
-				<input type="text" name="statusText" value="${statusText!}" class="input-xxlarge" maxlength="255" />
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="" >#i18n{module.workflow.notifycrm.task_notify_crm_config.label_send_notification} </label>
-			<div class="controls">
-				<label for="sendNotification1" class="radio inline">
-					<input type="radio" name="sendNotification" id="sendNotification1" value="true" <#if sendNotification>checked="checked"</#if> />
-					&nbsp;#i18n{module.workflow.notifycrm.task_notify_crm_config.label_send_notification.yes}
-				</label>
-				<label for="sendNotification2" class="radio inline">
-					<input type="radio" name="sendNotification" id="sendNotification2" value="false" <#if !sendNotification>checked="checked"</#if> />
-					&nbsp;#i18n{module.workflow.notifycrm.task_notify_crm_config.label_send_notification.no}
-				</label>
-			</div>
-		</div>
-		<div class="control-group" id="entry_user_guid">
-			<label class="control-label" for="baseURL">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_crm_webapp_base_url} :</label>
-			<div class="controls">
-				<input type="text" name="baseURL" value="${baseURL!}" class="input-xxlarge" maxlength="255" />
-				<button class="btn btn-primary btn-small" type="submit" name="apply">
-					<i class="icon-ok icon-white"></i>&nbsp;#i18n{module.workflow.notifycrm.task_notify_crm_config.label_apply}
-				</button>
-				<p class="help-block">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_crm_webapp_base_url_comment} : ${defaultCRMWebAppBaseURL!}</p>
-			</div>
-		</div>
-	</div>
-	<#if sendNotification>
-	<div class="control-group">
-		<label class="control-label" for="senderName">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_sender_name} *</label>
-		<div class="controls">
-			<input type="text" name="senderName" id="" class="input-xlarge" value="${senderName}" maxlength="255" />		
-			<span class="help-text">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_sender_name_comment}</span>
-		</div>
-	</div>
-	<div class="control-group">
-		<label class="control-label" for="suject">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_subject} * </label>
-		<div class="controls">
-			<input type="text" name="subject" id="" class="input-xlarge" value="${subject}" maxlength="255" />
-			<span class="help-text">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_subject_comment}</span>
-		</div>
-	</div>
-	<div class="control-group">
-		<label class="control-label" for="message">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_message} *</label>
-		<div class="controls">
-			<textarea name="message" id="" rows="20"  class="richtext">${message}</textarea>
-			<span class="help-text">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_message_comment}</span>
-		</div>
-	</div>
-	<#if config?exists && config.idDirectory!=-1>
-		<fieldset>
-			<legend>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_directory_comment}</legend>
-			<table class="table table-striped table-condensed">
-				<tr>
-					<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_directory}</th>
-					<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_freemarker}</th>
-				</tr>
-				<tr>
-					<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_status}</td>
-					<td>&#36;&#123;status&#125;</td>
-				</tr>
-				<tr>
-					<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_directory_title}</td>
-					<td>&#36;&#123;directory_title&#125;</td>
-				</tr>
-				<tr>
-					<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_directory_description}</td>
-					<td>&#36;&#123;directory_description&#125;</td>
-				</tr>
-			</table>
-		</fieldset>
-		<#if is_user_attribute_ws_active>
-			<fieldset class="user_attribute_freemarker">
-			<legend>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_user_attribute_comment}</legend>
-				<table class="table table-striped table-condensed">
-				<tr>
-					<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_user_attribute}</th>
-					<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_freemarker}</th>
-				</tr>
-				<tr>
-					<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_first_name}</td>
-					<td>&#36;&#123;first_name&#125;</td>
-				</tr>
-				<tr>
-					<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_last_name}</td>
-					<td>&#36;&#123;last_name&#125;</td>
-				</tr>
-				<tr>
-					<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_email}</td>
-					<td>&#36;&#123;email&#125;</td>
-				</tr>
-				<tr>
-					<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_phone_number}</td>
-					<td>&#36;&#123;phone_number&#125;</td>
-				</tr>
-				</table>
-			</fieldset>
-		</#if>
-		<#if tasks_list?exists && tasks_list?has_content>
+			<br/>
+			<label>&nbsp;</label>
+			#i18n{module.workflow.notifycrm.task_notify_crm_config.label_message_comment}
+		</p>
+		<br />
+		<#if config?exists && config.idDirectory!=-1>
 			<fieldset>
-			<legend>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_tasks_list_comment}</legend>
-				<table class="table table-striped table-condensed">
+				<legend>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_directory_comment}</legend>
+				<table>
 					<tr>
-						<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_title}</th>
-						<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_type}</th>
+						<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_directory}</th>
 						<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_freemarker}</th>
 					</tr>
-					<#list tasks_list as task>
 					<tr>
-						<td>${task.getTitle( locale )!}</td>
-						<td>${task.taskType.title!}</td>
-						<td>&#36;&#123;task_${task.id!}&#125;</td>
-						</tr>
-					</#list>
+						<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_status}</td>
+						<td>&#36;&#123;status&#125;</td>
+					</tr>
+					<tr>
+						<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_directory_title}</td>
+						<td>&#36;&#123;directory_title&#125;</td>
+					</tr>
+					<tr>
+						<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_directory_description}</td>
+						<td>&#36;&#123;directory_description&#125;</td>
+					</tr>
 				</table>
 			</fieldset>
+			<br />
+			<#if is_user_attribute_ws_active>
+				<fieldset class="user_attribute_freemarker">
+					<legend>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_user_attribute_comment}</legend>
+					<table>
+						<tr>
+							<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_user_attribute}</th>
+							<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_freemarker}</th>
+						</tr>
+						<tr>
+							<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_first_name}</td>
+							<td>&#36;&#123;first_name&#125;</td>
+						</tr>
+						<tr>
+							<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_last_name}</td>
+							<td>&#36;&#123;last_name&#125;</td>
+						</tr>
+						<tr>
+							<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_email}</td>
+							<td>&#36;&#123;email&#125;</td>
+						</tr>
+						<tr>
+							<td>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_phone_number}</td>
+							<td>&#36;&#123;phone_number&#125;</td>
+						</tr>
+					</table>
+				</fieldset>
+				<br />
+			</#if>
+			<#if tasks_list?exists && tasks_list?has_content>
+				<fieldset>
+					<legend>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_tasks_list_comment}</legend>
+					<table>
+						<tr>
+							<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_title}</th>
+							<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_type}</th>
+							<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_freemarker}</th>
+						</tr>
+						<#list tasks_list as task>
+							<tr>
+								<td>${task.getTitle( locale )!}</td>
+								<td>${task.taskType.title!}</td>
+								<td>&#36;&#123;task_${task.id!}&#125;</td>
+							</tr>
+						</#list>
+					</table>
+				</fieldset>
+				<br />
+			</#if>
+			<fieldset>
+				<legend>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_entry_directory_comment}</legend>
+				<table>
+			  		<tr>
+			  			<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_entry}</th>
+			  			<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_freemarker}</th>
+			  		</tr>
+				 	<#list list_entries_freemarker as entry>
+					  	<tr>
+					  		<td>
+					  			${entry.title!}
+					  		</td>
+					  		<td>
+					  			&#36;&#123;position_${entry.position}&#125;
+					  		</td>
+					  	</tr>
+					  </#list>
+				</table>
+			</fieldset>
+			<br />
 		</#if>
-		<fieldset>
-			<legend>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_entry_directory_comment}</legend>
-			<table class="table table-striped table-condensed">
-				<tr>
-					<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_entry}</th>
-					<th>#i18n{module.workflow.notifycrm.task_notify_crm_config.label_freemarker}</th>
-				</tr>
-				<#list list_entries_freemarker as entry>
-				<tr>
-					<td>${entry.title!}</td>
-					<td>&#36;&#123;position_${entry.position}&#125;</td>
-				</tr>
-				</#list>
-			</table>
-		</fieldset>
-	</#if>
+	</div>
 </#if>
 
 <script type="text/javascript">
