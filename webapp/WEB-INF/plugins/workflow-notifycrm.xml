@@ -2,7 +2,7 @@
     <!-- Plugin Informations -->
     <name>workflow-notifycrm</name>
     <class>fr.paris.lutece.plugins.workflow.modules.notifycrm.service.NotifyCRMPlugin</class>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <documentation/>
     <installation/>
     <changes/>
