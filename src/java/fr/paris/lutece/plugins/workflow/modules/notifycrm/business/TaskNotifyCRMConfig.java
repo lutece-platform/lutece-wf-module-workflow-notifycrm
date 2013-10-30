@@ -55,10 +55,12 @@ public class TaskNotifyCRMConfig extends TaskNotifyConfig
     @Min( 1 )
     private int _nPositionEntryDirectoryIdDemand;
     private int _nPositionEntryDirectoryUserGuid;
+    private int _nPositionEntryDirectoryCrmWebAppCode;
+     
     private boolean _bSendNotification;
     @NotNull
     private String _strStatusText;
-    private String _strBaseURL;
+  
 
     /**
      * Get the ID directory
@@ -149,20 +151,20 @@ public class TaskNotifyCRMConfig extends TaskNotifyConfig
     {
         return _strStatusText;
     }
-
-    /**
-     * @param strBaseURL the _strCRMWebAppBaseURL to set
-     */
-    public void setBaseURL( String strBaseURL )
-    {
-        _strBaseURL = strBaseURL;
-    }
-
-    /**
-     * @return the _strCRMWebAppBaseURL
-     */
-    public String getBaseURL(  )
-    {
-        return _strBaseURL;
-    }
+   
+	/**
+	 * 
+	 * @return  the position Entry directory crm webapp code
+	 */
+	public int getPositionEntryDirectoryCrmWebAppCode() {
+		return _nPositionEntryDirectoryCrmWebAppCode;
+	}
+	
+	/**
+	 * Set position Entry directory crm webapp code
+	 * @param positionEntryCrmWebAppCode Set position Entry directory crm webapp code
+	 */
+	public void setPositionEntryDirectoryCrmWebAppCode(int nPositionEntryCrmWebAppCode) {
+		this._nPositionEntryDirectoryCrmWebAppCode = nPositionEntryCrmWebAppCode;
+	}
 }

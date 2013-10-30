@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.workflow.modules.notifycrm.service.notification;
 
 import fr.paris.lutece.plugins.crmclient.service.ICRMClientService;
+import fr.paris.lutece.plugins.crmclient.util.CRMException;
 import fr.paris.lutece.plugins.directory.business.Directory;
 import fr.paris.lutece.plugins.directory.business.DirectoryHome;
 import fr.paris.lutece.plugins.directory.business.Record;
@@ -46,6 +47,7 @@ import fr.paris.lutece.plugins.workflownotify.business.TaskNotifyConfig;
 import fr.paris.lutece.plugins.workflownotify.service.notification.INotifyService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 import javax.inject.Inject;
 
@@ -84,15 +86,20 @@ public class NotifyService implements INotifyService
                 TaskNotifyCRMConfig notifyCRMConfig = (TaskNotifyCRMConfig) config;
                 String strIdDemand = _notifyCRMService.getIdDemand( notifyCRMConfig, record.getIdRecord(  ),
                         directory.getIdDirectory(  ) );
+                String strCrmWebappCode = _notifyCRMService.getCrmWebAppCode( notifyCRMConfig, record.getIdRecord(  ),
+                        directory.getIdDirectory(  ) );
+                
 
                 if ( notifyCRMConfig.getSendNotification(  ) )
                 {
-                    _crmClientService.notify( strIdDemand, strObject, strMessage, strSender,
-                        notifyCRMConfig.getBaseURL(  ) );
+                    _crmClientService.notify( strIdDemand, strObject, strMessage, strSender,strCrmWebappCode );
                 }
 
-                _crmClientService.sendUpdateDemand( strIdDemand, notifyCRMConfig.getStatusText(  ),
-                    notifyCRMConfig.getBaseURL(  ) );
+                try {
+					_crmClientService.sendUpdateDemand( strIdDemand, notifyCRMConfig.getStatusText(  ),strCrmWebappCode );
+				} catch (CRMException e) {
+					AppLogService.error(e);
+				}
             }
         }
     }

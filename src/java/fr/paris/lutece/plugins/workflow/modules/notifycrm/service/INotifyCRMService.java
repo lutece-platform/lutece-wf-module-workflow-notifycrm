@@ -76,6 +76,13 @@ public interface INotifyCRMService
      * @return true if it is accepted, false otherwise
      */
     boolean isEntryTypeUserGuidAccepted( int nIdEntryType );
+    
+    /**
+     * Check if the given entry type id is accepted for the crm web app code
+     * @param nIdEntryType the id entry type
+     * @return true if it is accepted, false otherwise
+     */
+    boolean isEntryTypeCrmWebAppCodeAccepted( int nIdEntryType );
 
     // GETS
 
@@ -107,6 +114,15 @@ public interface INotifyCRMService
      * @return a ReferenceList
      */
     ReferenceList getListEntriesUserGuid( int nIdTask, Locale locale );
+    
+    
+    /**
+     * Get the list of entries that have the accepted type (which are defined in <b>workflow-notifycrm.properties</b>)
+     * @param nIdTask the id task
+     * @param locale the Locale
+     * @return a ReferenceList
+     */
+    ReferenceList getListEntriesCrmWebAppCode( int nIdTask, Locale locale );
 
     /**
      * Get the list of entries that have not the refused type (which are defined in the <b>workflow-notifycrm.properties</b>).
@@ -135,6 +151,16 @@ public interface INotifyCRMService
      */
     String getUserGuid( TaskNotifyCRMConfig config, int nIdRecord, int nIdDirectory );
 
+    /**
+     * Get the crm Web app code associate to the demand
+     * @param config the config
+     * @param nIdRecord the id record
+     * @param nIdDirectory the id directory
+     * @return the crm Web app code associate to the demand, an empty string if the position is not set
+     */
+    String getCrmWebAppCode( TaskNotifyCRMConfig config, int nIdRecord, int nIdDirectory );
+    
+    
     /**
      * Get the list of tasks that have an order below the given reference task and that
      * have a ITaskProvider .

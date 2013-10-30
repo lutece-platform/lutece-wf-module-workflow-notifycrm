@@ -5,20 +5,20 @@
 <#assign message = "">
 <#assign positionEntryDirectoryIdDemand = -1>
 <#assign positionEntryDirectoryUserGuid = -1>
+<#assign positionEntryDirectoryCrmWebAppCode = -1>
 <#assign sendNotification = true>
 <#assign idDirectory = -1>
 <#assign statusText = "">
-<#assign baseURL = "">
 <#if config?exists>
 	<#assign senderName = config.senderName>
 	<#assign subject = config.subject>
 	<#assign message = config.message>
 	<#assign positionEntryDirectoryIdDemand = config.positionEntryDirectoryIdDemand>
 	<#assign positionEntryDirectoryUserGuid = config.positionEntryDirectoryUserGuid>
+	<#assign positionEntryDirectoryCrmWebAppCode = config.positionEntryDirectoryCrmWebAppCode>
 	<#assign idDirectory = config.idDirectory>
 	<#assign statusText = config.statusText>
 	<#assign sendNotification = config.sendNotification>
-	<#assign baseURL = config.baseURL>
 </#if>
 <div>
 	<fieldset>
@@ -48,6 +48,15 @@
 				</div>
 			</div>
 		</#if>
+		<#if list_entries_crm_web_app_code?exists>
+			<div class="control-group"id="entry_user_guid">
+				<label class="control-label" for="positionEntryDirectoryCrmWebAppCode">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_entry_directory_crm_web_app_code}  :</label>
+				<div class="controls">
+						<@combo name="positionEntryDirectoryCrmWebAppCode" items=list_entries_crm_web_app_code default_value=positionEntryDirectoryCrmWebAppCode />&nbsp;
+						<span class="help-block">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_task_entry_directory_crm_web_app_code_comment}</span>
+				</div>
+			</div>
+		</#if>
 		<div class="control-group">
 			<label class="control-label" for="statusText">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_status_text} * :</label>
 			<div class="controls">
@@ -65,13 +74,6 @@
 					<input type="radio" name="sendNotification" value="false" <#if !sendNotification>checked="checked"</#if> />
 					&nbsp;#i18n{module.workflow.notifycrm.task_notify_crm_config.label_send_notification.no}
 				</label>
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="baseURL">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_crm_webapp_base_url} :</label>
-			<div class="controls">
-				<input type="text" name="baseURL" value="${baseURL!}" size="80" maxlength="255" />
-				<span class="help-block">#i18n{module.workflow.notifycrm.task_notify_crm_config.label_crm_webapp_base_url_comment} : ${defaultCRMWebAppBaseURL!}</span>
 			</div>
 		</div>
 		<div class="control-group">

@@ -88,6 +88,7 @@ public final class NotifyCRMService implements INotifyCRMService
     private List<Integer> _listAcceptedEntryTypesIdDemand;
     private List<Integer> _listRefusedEntryTypes;
     private List<Integer> _listAcceptedEntryTypesUserGuid;
+    private List<Integer> _listAcceptedEntryTypesCrmWebAppCode;
     @Inject
     @Named( NotifyCRMConstants.BEAN_TASK_CONFIG_SERVICE )
     private ITaskConfigService _taskNotifyCRMConfigService;
@@ -109,6 +110,9 @@ public final class NotifyCRMService implements INotifyCRMService
 
         // Init list accepted entry types for user guid
         _listAcceptedEntryTypesUserGuid = fillListEntryTypes( NotifyCRMConstants.PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_USER_GUID );
+        // Init list accepted entry types for Crm Web App Code
+        _listAcceptedEntryTypesCrmWebAppCode = fillListEntryTypes( NotifyCRMConstants.PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_CRM_WEB_APP_CODE);
+        
     }
 
     // CHECKS
@@ -156,6 +160,22 @@ public final class NotifyCRMService implements INotifyCRMService
         if ( ( _listAcceptedEntryTypesUserGuid != null ) && !_listAcceptedEntryTypesUserGuid.isEmpty(  ) )
         {
             bIsAccepted = _listAcceptedEntryTypesUserGuid.contains( nIdEntryType );
+        }
+
+        return bIsAccepted;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isEntryTypeCrmWebAppCodeAccepted( int nIdEntryType )
+    {
+        boolean bIsAccepted = false;
+
+        if ( ( _listAcceptedEntryTypesCrmWebAppCode != null ) && !_listAcceptedEntryTypesCrmWebAppCode.isEmpty(  ) )
+        {
+            bIsAccepted = _listAcceptedEntryTypesCrmWebAppCode.contains( nIdEntryType );
         }
 
         return bIsAccepted;
@@ -248,6 +268,28 @@ public final class NotifyCRMService implements INotifyCRMService
 
         return refenreceListEntries;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ReferenceList getListEntriesCrmWebAppCode( int nIdTask, Locale locale )
+    {
+        ReferenceList refenreceListEntries = new ReferenceList(  );
+        refenreceListEntries.addItem( DirectoryUtils.CONSTANT_ID_NULL, DirectoryUtils.EMPTY_STRING );
+
+        for ( IEntry entry : getListEntries( nIdTask ) )
+        {
+            int nIdEntryType = entry.getEntryType(  ).getIdType(  );
+
+            if ( isEntryTypeCrmWebAppCodeAccepted( nIdEntryType ) )
+            {
+                refenreceListEntries.addItem( entry.getPosition(  ), buildReferenceEntryToString( entry, locale ) );
+            }
+        }
+
+        return refenreceListEntries;
+    }
 
     /**
      * {@inheritDoc}
@@ -300,6 +342,22 @@ public final class NotifyCRMService implements INotifyCRMService
         }
 
         return strUserGuid;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCrmWebAppCode( TaskNotifyCRMConfig config, int nIdRecord, int nIdDirectory )
+    {
+        String strCrmWebAppCode = StringUtils.EMPTY;
+
+        if ( config.getPositionEntryDirectoryCrmWebAppCode() != DirectoryUtils.CONSTANT_ID_NULL )
+        {
+        	strCrmWebAppCode = getRecordFieldValue( config.getPositionEntryDirectoryCrmWebAppCode(), nIdRecord, nIdDirectory );
+        }
+
+        return strCrmWebAppCode;
     }
 
     /**

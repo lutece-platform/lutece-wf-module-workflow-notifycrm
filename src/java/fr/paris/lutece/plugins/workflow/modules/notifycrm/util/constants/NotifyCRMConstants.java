@@ -56,6 +56,7 @@ public final class NotifyCRMConstants
     public static final String PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_ID_DEMAND = "workflow-notifycrm.acceptedDirectoryEntryTypesIdDemand";
     public static final String PROPERTY_REFUSED_DIRECTORY_ENTRY_TYPE = "workflow-notifycrm.refusedDirectoryEntryTypes";
     public static final String PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_USER_GUID = "workflow-notifycrm.acceptedDirectoryEntryTypesUserGuid";
+    public static final String PROPERTY_ACCEPTED_DIRECTORY_ENTRY_TYPE_CRM_WEB_APP_CODE = "workflow-notifycrm.acceptedDirectoryEntryTypesCrmWebAppCode";
     public static final String PROPERTY_DEFAULT_SENDER_NAME = "workflow-notifycrm.defaultSenderName";
     public static final String PROPERTY_CRMCLIENT_REST_WEBAPP_URL = "crmclient.crm.rest.webapp.url";
 
@@ -63,6 +64,8 @@ public final class NotifyCRMConstants
     public static final String MARK_CONFIG = "config";
     public static final String MARK_LIST_ENTRIES_ID_DEMAND = "list_entries_id_demand";
     public static final String MARK_LIST_ENTRIES_USER_GUID = "list_entries_user_guid";
+    public static final String MARK_LIST_ENTRIES_CRM_WEB_APP_CODE = "list_entries_crm_web_app_code";
+    
     public static final String MARK_LIST_DIRECTORIES = "list_directories";
     public static final String MARK_LIST_ENTRIES_FREEMARKER = "list_entries_freemarker";
     public static final String MARK_DEFAULT_SENDER_NAME = "defaultSenderName";

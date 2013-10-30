@@ -33,6 +33,20 @@
  */
 package fr.paris.lutece.plugins.workflow.modules.notifycrm.web;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
+
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.business.TaskNotifyCRMConfig;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.service.INotifyCRMService;
 import fr.paris.lutece.plugins.workflow.modules.notifycrm.util.constants.NotifyCRMConstants;
@@ -50,25 +64,9 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.web.constants.Messages;
+import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.beanvalidation.BeanValidationUtil;
 import fr.paris.lutece.util.html.HtmlTemplate;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
-
-import java.lang.reflect.InvocationTargetException;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import javax.servlet.http.HttpServletRequest;
-
-import javax.validation.ConstraintViolation;
 
 
 /**
@@ -151,15 +149,14 @@ public class NotifyCRMTaskComponent extends NoFormTaskComponent
     {
         String strDefaultSenderName = AppPropertiesService.getProperty( NotifyCRMConstants.PROPERTY_DEFAULT_SENDER_NAME );
         Plugin pluginWorkflow = PluginService.getPlugin( WorkflowPlugin.PLUGIN_NAME );
-
         Map<String, Object> model = new HashMap<String, Object>(  );
 
         model.put( NotifyCRMConstants.MARK_CONFIG, _taskNotifyCRMConfigService.findByPrimaryKey( task.getId(  ) ) );
         model.put( NotifyCRMConstants.MARK_DEFAULT_SENDER_NAME, strDefaultSenderName );
-        model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_ID_DEMAND,
-            _notifyCRMService.getListEntriesIdDemand( task.getId(  ), locale ) );
-        model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_USER_GUID,
-            _notifyCRMService.getListEntriesUserGuid( task.getId(  ), locale ) );
+        model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_ID_DEMAND,_notifyCRMService.getListEntriesIdDemand( task.getId(  ), locale ));
+        model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_USER_GUID,_notifyCRMService.getListEntriesUserGuid( task.getId(  ), locale ) );
+        model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_CRM_WEB_APP_CODE,_notifyCRMService.getListEntriesCrmWebAppCode( task.getId(  ), locale ) );
+        
         model.put( NotifyCRMConstants.MARK_LIST_DIRECTORIES, _notifyCRMService.getListDirectories(  ) );
         model.put( NotifyCRMConstants.MARK_LIST_ENTRIES_FREEMARKER,
             _notifyCRMService.getListEntriesFreemarker( task.getId(  ) ) );
